@@ -1,6 +1,6 @@
 import React from 'react';
 import AnimatedCounter from './AnimatedCounter';
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface HeroSectionProps {
   totalBalance: number;
