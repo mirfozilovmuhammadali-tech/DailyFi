@@ -19,9 +19,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ totalBalance, portfolioChange
 
       <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300 mb-2">
-            <Wallet size={14} className="text-gold" />
-            <span>VAULTX Premium</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-xs font-bold text-gold mb-2 tracking-wide uppercase">
+            <div className="w-2 h-2 bg-gold rotate-45"></div>
+            <span>DailyFi Premium</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-white tracking-tight">
             My Crypto Portfolio

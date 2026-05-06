@@ -17,11 +17,16 @@ const Layout: React.FC = () => {
     <div className="min-h-screen bg-dark-bg flex flex-col font-sans">
       {/* Top Navigation */}
       <nav className="glass-nav sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-[0_0_15px_rgba(255,215,0,0.4)]">
-            <span className="text-black font-heading font-bold text-lg leading-none pt-0.5">V</span>
+        <div className="flex items-center gap-3 group cursor-pointer">
+          <div className="relative w-10 h-10 flex items-center justify-center">
+            {/* Diamond Faceted Base */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gold via-gold-dark to-gold-light rounded-lg rotate-45 shadow-[0_0_20px_rgba(234,179,8,0.3)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all duration-500"></div>
+            {/* Monogram */}
+            <span className="relative z-10 text-black font-heading font-black text-xl leading-none mt-0.5">D</span>
+            {/* Subtle Cyan Micro-glow */}
+            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-cyan rounded-full blur-[2px] animate-pulse"></div>
           </div>
-          <span className="font-heading font-bold text-2xl tracking-widest text-white">VAULT<span className="text-gold">X</span></span>
+          <span className="font-heading font-bold text-2xl tracking-[0.2em] text-white">DAILY<span className="text-gold">FI</span></span>
         </div>
 
         <div className="hidden md:flex items-center gap-2 glass-card px-2 py-1.5 rounded-full">
