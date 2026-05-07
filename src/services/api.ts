@@ -19,7 +19,7 @@ export const getGlobalData = async () => {
   return response.data;
 };
 
-// Expanded News Service
+// Real Dynamic News Service
 export interface NewsVideo {
   id: string;
   title: string;
@@ -27,6 +27,7 @@ export interface NewsVideo {
   duration: string;
   views: string;
   channel: string;
+  url: string;
 }
 
 export interface NewsItem {
@@ -45,30 +46,33 @@ export interface NewsItem {
   videos?: NewsVideo[];
 }
 
-const VIDEO_THUMBNAILS = [
-  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=400&h=225',
-  'https://images.unsplash.com/photo-1516245834210-c4c142787335?auto=format&fit=crop&q=80&w=400&h=225',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=400&h=225',
-  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=400&h=225',
-  'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=400&h=225'
-];
+// Cache for YouTube videos to avoid hitting rate limits
+let cachedVideos: NewsVideo[] = [];
 
-const generateVideosForCategory = (category: string, idPrefix: string): NewsVideo[] => {
-  const numVideos = Math.floor(Math.random() * 3) + 2; // 2 to 4 videos
-  const videos: NewsVideo[] = [];
-  const displayCategory = category === 'All' ? 'Crypto' : category;
+const fetchRealVideos = async (): Promise<NewsVideo[]> => {
+  if (cachedVideos.length > 0) return cachedVideos;
   
-  for (let v = 0; v < numVideos; v++) {
-    videos.push({
-      id: `vid-${idPrefix}-${v}`,
-      title: `${displayCategory} Deep Dive Analysis & Market Prediction`,
-      thumbnail: VIDEO_THUMBNAILS[Math.floor(Math.random() * VIDEO_THUMBNAILS.length)],
-      duration: `${Math.floor(Math.random() * 15) + 5}:${Math.floor(Math.random() * 50) + 10}`,
-      views: `${(Math.random() * 500).toFixed(1)}K views`,
-      channel: `DailyFi TV`
-    });
+  try {
+    // Fetch real recent videos from CoinBureau via rss2json
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UCqK_GSMbpiV8spgD3ZGloSw');
+    const data = await response.json();
+    
+    if (data.items) {
+      cachedVideos = data.items.map((item: any) => ({
+        id: item.guid.replace('yt:video:', ''),
+        title: item.title,
+        thumbnail: item.thumbnail,
+        duration: '12:45', // RSS doesn't provide exact duration easily
+        views: 'Live',
+        channel: item.author,
+        url: item.link
+      }));
+    }
+    return cachedVideos;
+  } catch (err) {
+    console.error("Failed to fetch YouTube videos", err);
+    return [];
   }
-  return videos;
 };
 
 export const fetchNews = async (category: string = 'All', page: number = 1, limit: number = 15): Promise<NewsItem[]> => {
@@ -89,13 +93,16 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
   }
 
   try {
-    const response = await fetch(url);
-    const json = await response.json();
+    // Fetch News and Videos in parallel
+    const [newsResponse, videos] = await Promise.all([
+      fetch(url),
+      fetchRealVideos()
+    ]);
     
+    const json = await newsResponse.json();
     if (!json.Data) return [];
 
     const realNews: NewsItem[] = json.Data.map((article: any) => {
-      // Calculate real time ago
       const publishedDate = new Date(article.PUBLISHED_ON * 1000);
       const minutesAgo = Math.floor((Date.now() - publishedDate.getTime()) / 60000);
       let timeStr = `${minutesAgo}m ago`;
@@ -106,11 +113,15 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
         timeStr = `${Math.floor(minutesAgo / 1440)}d ago`;
       }
 
-      // Map Sentiment to Impact
       let impact: 'High' | 'Medium' | 'Low' = 'Medium';
       if (article.SENTIMENT === 'POSITIVE' || article.SENTIMENT === 'NEGATIVE') {
         impact = 'High';
       }
+
+      // Title-based search simulation using the real fetched videos
+      // Shuffle videos and pick 2-4 randomly to simulate related results
+      const shuffledVideos = [...videos].sort(() => 0.5 - Math.random());
+      const selectedVideos = shuffledVideos.slice(0, Math.floor(Math.random() * 3) + 2);
 
       return {
         id: article.ID.toString(),
@@ -125,14 +136,14 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
         url: article.URL,
         author: article.AUTHORS || `${article.SOURCE_DATA.NAME} Desk`,
         trending: article.UPVOTES > 5 || article.SENTIMENT === 'POSITIVE',
-        videos: generateVideosForCategory(category, article.ID.toString())
+        videos: selectedVideos
       };
     });
 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     
-    // Allow endless scrolling by looping the fetched 50 items
+    // Allow endless scrolling
     return realNews.slice(startIndex, endIndex).length > 0 
       ? realNews.slice(startIndex, endIndex)
       : realNews.slice(0, limit); 
