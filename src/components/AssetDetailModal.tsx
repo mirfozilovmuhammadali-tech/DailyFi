@@ -321,7 +321,7 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
                 <span className="text-lg font-mono font-bold text-gray-100">
                   ${dp.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}
                 </span>
-                <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded ${pos?'text-green-400 bg-green-400/10':'text-red-400 bg-red-400/10'}`}>
+                <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded ${pos?'text-bullish glow-bullish bg-bullish/10':'text-bearish glow-bearish bg-bearish/10'}`}>
                   {pos?<TrendingUp size={11}/>:<TrendingDown size={11}/>}
                   {Math.abs(chg).toFixed(2)}%
                 </span>
@@ -391,8 +391,8 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
               title="Go to latest candle"
               className={`relative flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-md transition-all duration-200 group ${
                 !isLive
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/40 shadow-[0_0_8px_rgba(34,197,94,0.25)] animate-pulse'
-                  : 'text-gray-500 hover:text-green-400 hover:bg-green-500/10 border border-transparent hover:border-green-500/20'
+                  ? 'bg-green-500/20 text-bullish glow-bullish border border-green-500/40 shadow-[0_0_8px_rgba(34,197,94,0.25)] animate-pulse'
+                  : 'text-gray-500 hover:text-bullish glow-bullish hover:bg-bullish/10 border border-transparent hover:border-bullish/20'
               }`}>
               <span className={`w-1.5 h-1.5 rounded-full transition-colors ${!isLive ? 'bg-green-400' : 'bg-gray-600 group-hover:bg-green-500'}`}/>
               Now
@@ -430,8 +430,8 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
                 {[
                   {l:'Time',  v: typeof bar.time==='number' ? new Date(bar.time*1000).toLocaleString() : String(bar.time), c:'text-gray-300'},
                   {l:'Open',  v: '$'+((bar.open  ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-gray-200'},
-                  {l:'High',  v: '$'+((bar.high  ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-green-400'},
-                  {l:'Low',   v: '$'+((bar.low   ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-red-400'},
+                  {l:'High',  v: '$'+((bar.high  ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-bullish glow-bullish'},
+                  {l:'Low',   v: '$'+((bar.low   ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-bearish glow-bearish'},
                   {l:'Close', v: '$'+((bar.close ||bar.value||0).toLocaleString(undefined,{maximumFractionDigits:5})), c:'text-cyan-400'},
                 ].map(({l,v,c})=>(
                   <div key={l} className="glass-card py-2 px-3 border border-white/5 text-center">
@@ -471,7 +471,7 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
                         {ETF_FLOWS.map((r,i)=>(
                           <tr key={i} className="hover:bg-white/5 transition-colors">
                             <td className="px-3 py-2 text-gray-300">{r.date}</td>
-                            <td className={`px-3 py-2 font-mono font-bold ${r.flow>=0?'text-green-400':'text-red-400'}`}>{r.flow>0?'+':''}{r.flow}M</td>
+                            <td className={`px-3 py-2 font-mono font-bold ${r.flow>=0?'text-bullish glow-bullish':'text-bearish glow-bearish'}`}>{r.flow>0?'+':''}{r.flow}M</td>
                             <td className="px-3 py-2 font-mono text-gray-500">${r.aum.toLocaleString()}</td>
                           </tr>
                         ))}
@@ -494,7 +494,7 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
                       <div className="text-[11px] font-medium text-gray-500 mb-2">{m.label}</div>
                       <div className="flex items-end justify-between">
                         <span className="text-lg font-mono font-bold text-white">{m.value}</span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${m.pos?'text-green-400 bg-green-400/10':'text-red-400 bg-red-400/10'}`}>{m.chg}</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${m.pos?'text-bullish glow-bullish bg-bullish/10':'text-bearish glow-bearish bg-bearish/10'}`}>{m.chg}</span>
                       </div>
                     </div>
                   ))}
@@ -509,3 +509,4 @@ const AssetDetailModal: React.FC<Props> = ({isOpen, onClose, asset}) => {
 };
 
 export default AssetDetailModal;
+

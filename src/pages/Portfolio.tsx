@@ -344,8 +344,8 @@ const Portfolio = () => {
             <div className="bg-black/30 p-5 rounded-2xl border border-white/5 backdrop-blur-md">
               <span className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2 block">24h Profit / Loss</span>
               <div className="flex items-end gap-3">
-                <span className="text-2xl font-mono font-bold text-green-400">+${(portfolioData.totalValue * 0.0225).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                <span className="flex items-center text-sm font-bold text-green-400 bg-green-400/10 px-2 py-0.5 rounded border border-green-400/20 mb-1">
+                <span className="text-2xl font-mono font-bold text-bullish glow-bullish">+${(portfolioData.totalValue * 0.0225).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                <span className="flex items-center text-sm font-bold text-bullish glow-bullish bg-bullish/10 px-2 py-0.5 rounded border border-bullish/20 mb-1">
                   <ArrowUpRight size={14} className="mr-0.5" /> 2.25%
                 </span>
               </div>
@@ -353,8 +353,8 @@ const Portfolio = () => {
             <div className="bg-black/30 p-5 rounded-2xl border border-white/5 backdrop-blur-md">
               <span className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2 block">All-Time Profit / Loss</span>
               <div className="flex items-end gap-3">
-                <span className="text-2xl font-mono font-bold text-green-400">+${(portfolioData.totalValue * 0.405).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                <span className="flex items-center text-sm font-bold text-green-400 bg-green-400/10 px-2 py-0.5 rounded border border-green-400/20 mb-1">
+                <span className="text-2xl font-mono font-bold text-bullish glow-bullish">+${(portfolioData.totalValue * 0.405).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                <span className="flex items-center text-sm font-bold text-bullish glow-bullish bg-bullish/10 px-2 py-0.5 rounded border border-bullish/20 mb-1">
                   <ArrowUpRight size={14} className="mr-0.5" /> 40.5%
                 </span>
               </div>
@@ -418,7 +418,7 @@ const Portfolio = () => {
           {portfolioData.computedAssets.map((asset) => {
             const isPositive = asset.change.includes('+');
             const Icon = isPositive ? TrendingUp : TrendingDown;
-            const changeColor = isPositive ? 'text-green-400' : 'text-red-400';
+            const changeColor = isPositive ? 'text-bullish glow-bullish' : 'text-bearish glow-bearish';
             
             return (
               <div 
@@ -432,7 +432,7 @@ const Portfolio = () => {
                 {/* Remove Button */}
                 <button 
                   onClick={(e) => handleRemoveAsset(e, asset.id)}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-red-400 hover:bg-red-400/10 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 z-20"
+                  className="absolute top-4 right-4 text-gray-500 hover:text-bearish glow-bearish hover:bg-bearish/10 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 z-20"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -541,7 +541,7 @@ const Portfolio = () => {
               </div>
               
               {addAssetError && (
-                <div className="text-red-400 text-sm font-bold bg-red-400/10 p-3 rounded border border-red-400/20">
+                <div className="text-bearish glow-bearish text-sm font-bold bg-bearish/10 p-3 rounded border border-bearish/20">
                   {addAssetError}
                 </div>
               )}
@@ -563,3 +563,4 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+

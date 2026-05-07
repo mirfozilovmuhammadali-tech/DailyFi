@@ -118,7 +118,7 @@ const BtcDominanceModal: React.FC<BtcDominanceModalProps> = ({ isOpen, onClose }
                 <TrendingUp size={14}/> 30-Day Trend
               </span>
               <div className="flex items-end justify-between">
-                <span className="text-3xl font-mono font-bold text-green-400">+1.2%</span>
+                <span className="text-3xl font-mono font-bold text-bullish glow-bullish">+1.2%</span>
               </div>
             </div>
           </div>
@@ -258,3 +258,4 @@ const BtcDominanceModal: React.FC<BtcDominanceModalProps> = ({ isOpen, onClose }
 };
 
 export default BtcDominanceModal;
+

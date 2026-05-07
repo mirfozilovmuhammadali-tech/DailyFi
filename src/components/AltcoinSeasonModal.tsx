@@ -209,7 +209,7 @@ const AltcoinSeasonModal: React.FC<AltcoinSeasonModalProps> = ({ isOpen, onClose
                         <tr key={idx} className={"hover:bg-white/5 transition-colors group " + (row.coin === 'BTC' ? 'bg-white/5 border-y border-yellow-500/20' : '')}>
                           <td className="px-5 py-4 font-bold text-gray-300 group-hover:text-white transition-colors">{row.coin}</td>
                           <td className="px-5 py-4 text-gray-400 group-hover:text-gray-300">{row.name}</td>
-                          <td className={"px-5 py-4 text-right font-mono font-bold " + (row.return.includes('+') ? 'text-green-400' : 'text-red-400')}>{row.return}</td>
+                          <td className={"px-5 py-4 text-right font-mono font-bold " + (row.return.includes('+') ? 'text-bullish glow-bullish' : 'text-bearish glow-bearish')}>{row.return}</td>
                           <td className="px-5 py-4 text-right">
                             <span className={"px-3 py-1 rounded text-xs font-bold border " + 
                               (row.status === 'Outperformed' ? 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20' : 
@@ -268,3 +268,4 @@ const AltcoinSeasonModal: React.FC<AltcoinSeasonModalProps> = ({ isOpen, onClose
 };
 
 export default AltcoinSeasonModal;
+

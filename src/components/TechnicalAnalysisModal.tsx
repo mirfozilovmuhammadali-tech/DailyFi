@@ -91,7 +91,7 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
   const tableData = isRsi ? tableDataRsi : tableDataMacd;
   
   const color = isRsi ? '#22d3ee' : '#4ade80';
-  const colorClass = isRsi ? 'text-cyan-400' : 'text-green-400';
+  const colorClass = isRsi ? 'text-cyan-400' : 'text-bullish glow-bullish';
   const bgClass = isRsi ? 'bg-cyan-400/20' : 'bg-green-400/20';
   const borderClass = isRsi ? 'border-cyan-400/30' : 'border-green-400/30';
   const gradientClass = isRsi ? 'from-cyan-400 via-blue-500' : 'from-green-400 via-emerald-500';
@@ -241,8 +241,8 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
                     <tbody className="text-sm divide-y divide-white/5">
                       {tableData.map((row, idx) => {
                         let signalColor = 'text-gray-400 bg-white/5 border-white/10';
-                        if (row.signal === 'Overbought' || row.signal.includes('Sell')) signalColor = 'text-red-400 bg-red-400/10 border-red-400/20';
-                        if (row.signal === 'Oversold' || row.signal.includes('Buy')) signalColor = 'text-green-400 bg-green-400/10 border-green-400/20';
+                        if (row.signal === 'Overbought' || row.signal.includes('Sell')) signalColor = 'text-bearish glow-bearish bg-bearish/10 border-bearish/20';
+                        if (row.signal === 'Oversold' || row.signal.includes('Buy')) signalColor = 'text-bullish glow-bullish bg-bullish/10 border-bullish/20';
                         
                         return (
                           <tr key={idx} className="hover:bg-white/5 transition-colors group">
@@ -278,7 +278,7 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
                     <div className="space-y-4">
                       <div className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
                         <div>
-                          <strong className="text-red-400 text-sm block mb-1">Overbought (&gt; 70)</strong>
+                          <strong className="text-bearish glow-bearish text-sm block mb-1">Overbought (&gt; 70)</strong>
                           <span className="text-xs text-gray-400 leading-tight">
                             The asset has experienced rapid upward momentum and may be primed for a trend reversal or corrective pullback.
                           </span>
@@ -286,7 +286,7 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
                       </div>
                       <div className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
                         <div>
-                          <strong className="text-green-400 text-sm block mb-1">Oversold (&lt; 30)</strong>
+                          <strong className="text-bullish glow-bullish text-sm block mb-1">Oversold (&lt; 30)</strong>
                           <span className="text-xs text-gray-400 leading-tight">
                             The asset has experienced significant downward momentum and may be undervalued, presenting a buying opportunity.
                           </span>
@@ -302,7 +302,7 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
                     <div className="space-y-4">
                       <div className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
                         <div>
-                          <strong className="text-green-400 text-sm block mb-1">Bullish Crossover</strong>
+                          <strong className="text-bullish glow-bullish text-sm block mb-1">Bullish Crossover</strong>
                           <span className="text-xs text-gray-400 leading-tight">
                             Occurs when the MACD line crosses ABOVE the signal line. Indicates increasing upward momentum and generates a BUY signal.
                           </span>
@@ -310,7 +310,7 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
                       </div>
                       <div className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
                         <div>
-                          <strong className="text-red-400 text-sm block mb-1">Bearish Crossover</strong>
+                          <strong className="text-bearish glow-bearish text-sm block mb-1">Bearish Crossover</strong>
                           <span className="text-xs text-gray-400 leading-tight">
                             Occurs when the MACD line crosses BELOW the signal line. Indicates increasing downward momentum and generates a SELL signal.
                           </span>
@@ -331,3 +331,4 @@ const TechnicalAnalysisModal: React.FC<TechnicalAnalysisModalProps> = ({ isOpen,
 };
 
 export default TechnicalAnalysisModal;
+

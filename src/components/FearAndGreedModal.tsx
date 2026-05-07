@@ -127,14 +127,14 @@ const FearAndGreedModal: React.FC<FearAndGreedModalProps> = ({ isOpen, onClose }
                     <span className="text-gray-300">Last Week</span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-white">65</span>
-                      <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded">Greed</span>
+                      <span className="text-xs bg-green-500/20 text-bullish px-2 py-0.5 rounded">Greed</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-white/5">
                     <span className="text-gray-300">Last Month</span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-white">74</span>
-                      <span className="text-xs bg-green-500/20 text-green-500 px-2 py-0.5 rounded">Greed</span>
+                      <span className="text-xs bg-green-500/20 text-bullish px-2 py-0.5 rounded">Greed</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center pt-1">
@@ -194,14 +194,14 @@ const FearAndGreedModal: React.FC<FearAndGreedModalProps> = ({ isOpen, onClose }
                 <div className="glass-card p-6">
                   <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Yearly Extremes</h4>
                   <div className="flex items-center gap-6 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 text-green-400">
+                    <div className="w-12 h-12 rounded-xl bg-bullish/10 flex items-center justify-center border border-bullish/20 text-bullish glow-bullish">
                       <TrendingUp size={24} />
                     </div>
                     <div>
                       <span className="block text-gray-400 text-sm">Yearly High</span>
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-white">88</span>
-                        <span className="text-sm text-green-500 font-medium">(Extreme Greed)</span>
+                        <span className="text-sm text-bullish font-medium">(Extreme Greed)</span>
                       </div>
                       <span className="text-xs text-gray-500">Mar 14, 2024</span>
                     </div>
@@ -210,7 +210,7 @@ const FearAndGreedModal: React.FC<FearAndGreedModalProps> = ({ isOpen, onClose }
                   <div className="w-full h-px bg-white/5 my-4"></div>
                   
                   <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20 text-red-400">
+                    <div className="w-12 h-12 rounded-xl bg-bearish/10 flex items-center justify-center border border-bearish/20 text-bearish glow-bearish">
                       <TrendingDown size={24} />
                     </div>
                     <div>
@@ -254,3 +254,4 @@ const FearAndGreedModal: React.FC<FearAndGreedModalProps> = ({ isOpen, onClose }
 };
 
 export default FearAndGreedModal;
+

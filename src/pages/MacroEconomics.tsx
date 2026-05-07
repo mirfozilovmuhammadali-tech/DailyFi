@@ -80,8 +80,8 @@ const MacroEconomics: React.FC = () => {
   const metrics = [
     { name: 'Target Rate', value: '5.50%', change: 'Unchanged', icon: DollarSign, color: 'text-gold' },
     { name: 'M2 Money Supply', value: '$20.8T', change: '-1.2% (YoY)', icon: Activity, color: 'text-cyan' },
-    { name: 'DXY Index', value: '105.32', change: '+0.45%', icon: TrendingUp, color: 'text-red-400' },
-    { name: 'Global Liquidity', value: '$172T', change: '+2.1%', icon: Globe, color: 'text-green-400' },
+    { name: 'DXY Index', value: '105.32', change: '+0.45%', icon: TrendingUp, color: 'text-bearish glow-bearish' },
+    { name: 'Global Liquidity', value: '$172T', change: '+2.1%', icon: Globe, color: 'text-bullish glow-bullish' },
   ];
 
   return (
@@ -108,7 +108,7 @@ const MacroEconomics: React.FC = () => {
                 <div className="p-3 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform">
                   <Icon className={`w-6 h-6 ${m.color}`} />
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded ${m.change.includes('+') ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                <span className={`text-xs font-bold px-2 py-1 rounded ${m.change.includes('+') ? 'text-bullish glow-bullish bg-bullish/10' : 'text-bearish glow-bearish bg-bearish/10'}`}>
                   {m.change}
                 </span>
               </div>
@@ -129,7 +129,7 @@ const MacroEconomics: React.FC = () => {
             <h3 className="text-xl font-heading font-bold text-white flex items-center gap-2">
               <DollarSign className="text-gold" size={20} /> DXY - US Dollar Index
             </h3>
-            <div className="flex items-center gap-2 text-green-400 font-mono font-bold">
+            <div className="flex items-center gap-2 text-bullish glow-bullish font-mono font-bold">
               <ArrowUpRight size={18} /> +0.84%
             </div>
           </div>
@@ -161,7 +161,7 @@ const MacroEconomics: React.FC = () => {
             <h3 className="text-xl font-heading font-bold text-white flex items-center gap-2">
               <Activity className="text-cyan" size={20} /> US 10Y Bond Yield
             </h3>
-            <div className="flex items-center gap-2 text-red-400 font-mono font-bold">
+            <div className="flex items-center gap-2 text-bearish glow-bearish font-mono font-bold">
               <ArrowDownRight size={18} /> -0.12%
             </div>
           </div>
@@ -221,7 +221,7 @@ const MacroEconomics: React.FC = () => {
                   </td>
                   <td className="px-8 py-6">
                     <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-tighter ${
-                      event.impact === 'High' ? 'bg-red-400/20 text-red-400' : 'bg-cyan/20 text-cyan'
+                      event.impact === 'High' ? 'bg-bearish/20 text-bearish glow-bearish' : 'bg-cyan/20 text-cyan'
                     }`}>
                       {event.impact} Impact
                     </span>
@@ -233,8 +233,8 @@ const MacroEconomics: React.FC = () => {
                         event.sentiment === 'Bearish' ? 'bg-red-400' : 'bg-gray-400'
                       }`} />
                       <span className={`text-xs font-bold uppercase tracking-widest ${
-                        event.sentiment === 'Bullish' ? 'text-green-400' : 
-                        event.sentiment === 'Bearish' ? 'text-red-400' : 'text-gray-400'
+                        event.sentiment === 'Bullish' ? 'text-bullish glow-bullish' : 
+                        event.sentiment === 'Bearish' ? 'text-bearish glow-bearish' : 'text-gray-400'
                       }`}>
                         {event.sentiment}
                       </span>
@@ -257,11 +257,11 @@ const MacroEconomics: React.FC = () => {
       {/* Recession Indicators & Correlation */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="glass-card p-8 border border-white/5 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-red-400/10 flex items-center justify-center text-red-400 mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-bearish/10 flex items-center justify-center text-bearish glow-bearish mb-6">
             <AlertTriangle size={32} />
           </div>
           <h4 className="text-lg font-heading font-bold text-white mb-2">Recession Probability</h4>
-          <span className="text-3xl font-mono font-black text-red-400">65%</span>
+          <span className="text-3xl font-mono font-black text-bearish glow-bearish">65%</span>
           <p className="text-xs text-gray-500 mt-4 leading-relaxed">Based on the 10Y-2Y yield curve inversion and leading economic indicators.</p>
         </div>
 
@@ -281,7 +281,7 @@ const MacroEconomics: React.FC = () => {
           <h4 className="text-lg font-heading font-bold text-white mb-2">Global Liquidity Index</h4>
           <div className="flex items-center gap-2">
             <span className="text-3xl font-mono font-black text-cyan">Neutral</span>
-            <TrendingUp size={24} className="text-green-400" />
+            <TrendingUp size={24} className="text-bullish glow-bullish" />
           </div>
           <p className="text-xs text-gray-500 mt-4 leading-relaxed">Central bank balance sheets showing slight expansion in the Asian markets.</p>
         </div>
@@ -291,3 +291,4 @@ const MacroEconomics: React.FC = () => {
 };
 
 export default MacroEconomics;
+

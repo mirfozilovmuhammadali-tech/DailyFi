@@ -58,11 +58,11 @@ const FundingRatesModal: React.FC<FundingRatesModalProps> = ({ isOpen, onClose }
     
     if (isPositive) {
       if (rate > 0.03) { bgColor = 'bg-green-500/30'; textColor = 'text-green-300'; }
-      else if (rate > 0.01) { bgColor = 'bg-green-500/20'; textColor = 'text-green-400'; }
-      else { bgColor = 'bg-green-500/10'; textColor = 'text-green-500'; }
+      else if (rate > 0.01) { bgColor = 'bg-green-500/20'; textColor = 'text-bullish glow-bullish'; }
+      else { bgColor = 'bg-bullish/10'; textColor = 'text-bullish'; }
     } else if (isNegative) {
       if (rate < -0.01) { bgColor = 'bg-red-500/30'; textColor = 'text-red-300'; }
-      else { bgColor = 'bg-red-500/10'; textColor = 'text-red-400'; }
+      else { bgColor = 'bg-bearish/10'; textColor = 'text-bearish glow-bearish'; }
     }
 
     return (
@@ -127,7 +127,7 @@ const FundingRatesModal: React.FC<FundingRatesModalProps> = ({ isOpen, onClose }
                 Avg BTC Rate
               </span>
               <div className="flex items-end justify-between">
-                <span className="text-3xl font-mono font-bold text-green-400">+0.0100%</span>
+                <span className="text-3xl font-mono font-bold text-bullish glow-bullish">+0.0100%</span>
               </div>
             </div>
             <div className="glass-card p-6 border border-white/5 bg-white/5">
@@ -270,3 +270,4 @@ const FundingRatesModal: React.FC<FundingRatesModalProps> = ({ isOpen, onClose }
 };
 
 export default FundingRatesModal;
+

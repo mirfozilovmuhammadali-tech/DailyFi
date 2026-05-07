@@ -78,7 +78,7 @@ const MarketOverview: React.FC<MarketOverviewProps> = ({ marketData, isLoading }
                   </td>
                   <td className="py-4">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-bold ${
-                      isPositive ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'
+                      isPositive ? 'text-bullish glow-bullish bg-bullish/10' : 'text-bearish glow-bearish bg-bearish/10'
                     }`}>
                       {isPositive ? '+' : ''}{data.usd_24h_change?.toFixed(2)}%
                     </span>
@@ -104,3 +104,4 @@ const MarketOverview: React.FC<MarketOverviewProps> = ({ marketData, isLoading }
 };
 
 export default MarketOverview;
+

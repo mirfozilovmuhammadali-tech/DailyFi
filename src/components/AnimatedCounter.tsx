@@ -47,7 +47,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     maximumFractionDigits: decimals,
   });
 
-  return <span>{prefix}{formattedValue}{suffix}</span>;
+  return <span className="tabular-data">{prefix}{formattedValue}{suffix}</span>;
 };
 
 export default AnimatedCounter;

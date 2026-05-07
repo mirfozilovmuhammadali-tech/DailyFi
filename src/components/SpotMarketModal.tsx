@@ -79,28 +79,28 @@ const SpotMarketModal: React.FC<SpotMarketModalProps> = ({ isOpen, onClose }) =>
               <span className="text-sm font-medium text-gray-400 mb-2 block">24h Global Volume</span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-mono font-bold text-white">$84.0B</span>
-                <span className="text-xs font-bold px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20">+12.5%</span>
+                <span className="text-xs font-bold px-2 py-1 rounded bg-bullish/10 text-bullish glow-bullish border border-bullish/20">+12.5%</span>
               </div>
             </div>
             <div className="glass-card p-5 border border-white/5 bg-white/5">
               <span className="text-sm font-medium text-gray-400 mb-2 block">Total Market Cap</span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-mono font-bold text-white">$2.42T</span>
-                <span className="text-xs font-bold px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20">+3.2%</span>
+                <span className="text-xs font-bold px-2 py-1 rounded bg-bullish/10 text-bullish glow-bullish border border-bullish/20">+3.2%</span>
               </div>
             </div>
             <div className="glass-card p-5 border border-white/5 bg-white/5">
               <span className="text-sm font-medium text-gray-400 mb-2 block">Active Traders (24h)</span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-mono font-bold text-white">4.2M</span>
-                <span className="text-xs font-bold px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/20">+5.1%</span>
+                <span className="text-xs font-bold px-2 py-1 rounded bg-bullish/10 text-bullish glow-bullish border border-bullish/20">+5.1%</span>
               </div>
             </div>
             <div className="glass-card p-5 border border-white/5 bg-white/5">
               <span className="text-sm font-medium text-gray-400 mb-2 block">Bitcoin Dominance</span>
               <div className="flex items-end justify-between">
                 <span className="text-2xl font-mono font-bold text-white">54.2%</span>
-                <span className="text-xs font-bold px-2 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/20">-0.2%</span>
+                <span className="text-xs font-bold px-2 py-1 rounded bg-bearish/10 text-bearish glow-bearish border border-bearish/20">-0.2%</span>
               </div>
             </div>
           </div>
@@ -174,3 +174,4 @@ const SpotMarketModal: React.FC<SpotMarketModalProps> = ({ isOpen, onClose }) =>
 };
 
 export default SpotMarketModal;
+

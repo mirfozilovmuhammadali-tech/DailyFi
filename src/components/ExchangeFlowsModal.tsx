@@ -56,22 +56,22 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
       ></div>
       
       {/* Modal Container */}
-      <div className={"relative w-full max-w-6xl bg-dark-bg/95 backdrop-blur-2xl border border-green-500/20 rounded-3xl shadow-[0_0_80px_rgba(34,197,94,0.1)] overflow-hidden transition-all duration-300 transform max-h-[90vh] flex flex-col " + animationClass}>
+      <div className={"relative w-full max-w-6xl bg-dark-bg/95 backdrop-blur-2xl border border-bullish/20 rounded-3xl shadow-[0_0_80px_rgba(34,197,94,0.1)] overflow-hidden transition-all duration-300 transform max-h-[90vh] flex flex-col " + animationClass}>
         
         {/* Glow Effects */}
         <div className="absolute top-0 right-0 w-1/2 h-1 bg-gradient-to-l from-green-500 via-emerald-500 to-transparent opacity-50"></div>
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-green-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-bullish/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         {/* Header */}
         <div className="p-8 border-b border-white/5 flex justify-between items-center bg-black/40">
           <div className="flex items-center gap-5 relative z-10">
             <div className="w-14 h-14 rounded-2xl bg-green-500/20 border border-green-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-              <ArrowRightLeft className="w-7 h-7 text-green-400" />
+              <ArrowRightLeft className="w-7 h-7 text-bullish glow-bullish" />
             </div>
             <div>
               <h2 className="text-3xl font-heading font-bold text-white tracking-tight">Exchange Flows</h2>
               <div className="flex items-center gap-4 mt-1.5">
-                <span className="text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 text-green-400">
+                <span className="text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 text-bullish glow-bullish">
                   <Building2 size={14} /> Liquidity Tracker
                 </span>
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
@@ -89,15 +89,15 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
           
           {/* Key Metrics Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="glass-card p-6 border shadow-xl bg-gradient-to-br from-green-500/10 to-transparent border-green-500/20">
+            <div className="glass-card p-6 border shadow-xl bg-gradient-to-br from-green-500/10 to-transparent border-bullish/20">
               <span className="text-sm font-medium text-gray-400 mb-2 block uppercase tracking-wider">Net Flow (24h)</span>
               <div className="flex items-end justify-between">
-                <span className="text-4xl font-mono font-bold text-green-400 drop-shadow-md">-$1.2B</span>
+                <span className="text-4xl font-mono font-bold text-bullish glow-bullish drop-shadow-md">-$1.2B</span>
               </div>
             </div>
             <div className="glass-card p-6 border border-white/5 bg-white/5">
               <span className="text-sm font-medium text-gray-400 mb-2 block uppercase tracking-wider flex items-center gap-2">
-                <TrendingDown className="text-red-400" size={14}/> Total Inflows
+                <TrendingDown className="text-bearish glow-bearish" size={14}/> Total Inflows
               </span>
               <div className="flex items-end justify-between">
                 <span className="text-3xl font-mono font-bold text-white">$4.8B</span>
@@ -105,7 +105,7 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
             </div>
             <div className="glass-card p-6 border border-white/5 bg-white/5">
               <span className="text-sm font-medium text-gray-400 mb-2 block uppercase tracking-wider flex items-center gap-2">
-                <TrendingUp className="text-green-400" size={14}/> Total Outflows
+                <TrendingUp className="text-bullish glow-bullish" size={14}/> Total Outflows
               </span>
               <div className="flex items-end justify-between">
                 <span className="text-3xl font-mono font-bold text-white">$6.0B</span>
@@ -205,7 +205,7 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
                         <tr key={idx} className="hover:bg-white/5 transition-colors group">
                           <td className="px-5 py-4 font-bold text-gray-300 group-hover:text-white transition-colors">{row.exchange}</td>
                           <td className="px-5 py-4 text-right font-mono text-gray-300">{row.balance}</td>
-                          <td className={"px-5 py-4 text-right font-mono font-bold " + (row.change.includes('+') ? 'text-red-400' : 'text-green-400')}>
+                          <td className={"px-5 py-4 text-right font-mono font-bold " + (row.change.includes('+') ? 'text-bearish glow-bearish' : 'text-bullish glow-bullish')}>
                             {row.change}
                           </td>
                           <td className="px-5 py-4 text-right text-gray-400">{row.share}</td>
@@ -221,7 +221,7 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
             <div className="lg:col-span-1 flex flex-col gap-8">
               <div className="glass-card p-6 bg-gradient-to-br from-white/5 to-transparent border border-white/5 flex-1 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-bl-full"></div>
-                <h4 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-6 flex items-center gap-2">
+                <h4 className="text-sm font-bold text-bullish glow-bullish uppercase tracking-wider mb-6 flex items-center gap-2">
                   <Info size={16} /> Market Context
                 </h4>
                 <p className="text-gray-300 text-sm leading-relaxed mb-6">
@@ -233,14 +233,14 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
                   <li className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner border-l-4 border-l-green-500">
                     <div>
                       <strong className="text-white block mb-1">Negative Net Flow (Outflows)</strong>
-                      <span className="text-green-400 font-bold block mb-1">BULLISH</span>
+                      <span className="text-bullish glow-bullish font-bold block mb-1">BULLISH</span>
                       Investors are withdrawing assets to cold storage, reducing available sell pressure on exchanges. Indicates holding behavior.
                     </div>
                   </li>
                   <li className="flex items-start gap-3 bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner border-l-4 border-l-red-500">
                     <div>
                       <strong className="text-white block mb-1">Positive Net Flow (Inflows)</strong>
-                      <span className="text-red-400 font-bold block mb-1">BEARISH</span>
+                      <span className="text-bearish glow-bearish font-bold block mb-1">BEARISH</span>
                       Investors are depositing assets to exchanges, typically preparing to sell or trade them. Increases available supply.
                     </div>
                   </li>
@@ -265,3 +265,4 @@ const ExchangeFlowsModal: React.FC<ExchangeFlowsModalProps> = ({ isOpen, onClose
 };
 
 export default ExchangeFlowsModal;
+

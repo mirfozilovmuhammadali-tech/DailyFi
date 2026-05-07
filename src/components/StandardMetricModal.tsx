@@ -79,7 +79,7 @@ const StandardMetricModal: React.FC<StandardMetricModalProps> = ({
     switch(colorTheme) {
       case 'gold': return { text: 'text-gold', bg: 'bg-gold/20', border: 'border-gold/30', hex: '#fbbf24', gradient: 'from-gold via-yellow-500' };
       case 'cyan': return { text: 'text-cyan-400', bg: 'bg-cyan-400/20', border: 'border-cyan-400/30', hex: '#22d3ee', gradient: 'from-cyan-400 via-blue-500' };
-      case 'green': return { text: 'text-green-400', bg: 'bg-green-400/20', border: 'border-green-400/30', hex: '#4ade80', gradient: 'from-green-400 via-emerald-500' };
+      case 'green': return { text: 'text-bullish glow-bullish', bg: 'bg-green-400/20', border: 'border-green-400/30', hex: '#4ade80', gradient: 'from-green-400 via-emerald-500' };
       case 'blue': return { text: 'text-blue-400', bg: 'bg-blue-400/20', border: 'border-blue-400/30', hex: '#60a5fa', gradient: 'from-blue-400 via-indigo-500' };
       case 'purple': return { text: 'text-purple-400', bg: 'bg-purple-400/20', border: 'border-purple-400/30', hex: '#c084fc', gradient: 'from-purple-400 via-fuchsia-500' };
       case 'yellow': return { text: 'text-yellow-400', bg: 'bg-yellow-400/20', border: 'border-yellow-400/30', hex: '#facc15', gradient: 'from-yellow-400 via-orange-500' };
@@ -146,7 +146,7 @@ const StandardMetricModal: React.FC<StandardMetricModalProps> = ({
                 <CalendarDays size={14}/> 30-Day Trend
               </span>
               <div className="flex items-end justify-between">
-                <span className="text-3xl font-mono font-bold text-green-400">+4.2%</span>
+                <span className="text-3xl font-mono font-bold text-bullish glow-bullish">+4.2%</span>
               </div>
             </div>
             <div className="glass-card p-6 border border-white/5 bg-white/5">
@@ -295,3 +295,4 @@ const StandardMetricModal: React.FC<StandardMetricModalProps> = ({
 };
 
 export default StandardMetricModal;
+

@@ -18,7 +18,10 @@ export default {
         },
         cyan: {
           DEFAULT: '#00f5ff',
-        }
+        },
+        bullish: '#00C076',
+        bearish: '#FF3B69',
+        accent: '#3B82F6',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

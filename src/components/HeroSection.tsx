@@ -36,7 +36,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ totalBalance, portfolioChange
           </div>
           
           <div className={`inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full text-sm font-bold ${
-            isPositive ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+            isPositive ? 'bg-bullish/10 text-bullish glow-bullish border border-bullish/20' : 'bg-bearish/10 text-bearish glow-bearish border border-bearish/20'
           }`}>
             {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
             <AnimatedCounter value={Math.abs(changeValue)} prefix={isPositive ? '+$' : '-$'} decimals={2} />
@@ -49,3 +49,4 @@ const HeroSection: React.FC<HeroSectionProps> = ({ totalBalance, portfolioChange
 };
 
 export default HeroSection;
+
