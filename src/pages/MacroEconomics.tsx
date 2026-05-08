@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   Calendar, 
@@ -22,6 +22,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import BackgroundGlobe from '../components/BackgroundGlobe';
+import { MacroDetailModal } from '../components/MacroDetailModal';
 
 const GlowingDot = (props: any) => {
   const { cx, cy, stroke } = props;
@@ -35,6 +36,18 @@ const GlowingDot = (props: any) => {
 };
 
 const MacroEconomics: React.FC = () => {
+  const [selectedMetricId, setSelectedMetricId] = useState<string | null>(null);
+  const [selectedIcon, setSelectedIcon] = useState<any>(null);
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedGlow, setSelectedGlow] = useState<string>('');
+
+  const handleCardClick = (id: string, icon: any, color: string, glow: string) => {
+    setSelectedMetricId(id);
+    setSelectedIcon(() => icon);
+    setSelectedColor(color);
+    setSelectedGlow(glow);
+  };
+
   const dxyData = [
     { date: 'Mon', value: 104.2 },
     { date: 'Tue', value: 104.5 },
@@ -57,7 +70,7 @@ const MacroEconomics: React.FC = () => {
 
   const economicEvents = [
     {
-      id: 1,
+      id: 'cpi',
       title: 'US Core CPI (YoY)',
       impact: 'High',
       time: '2h ago',
@@ -68,7 +81,7 @@ const MacroEconomics: React.FC = () => {
       description: 'Higher than expected inflation fuels hawkish Fed expectations.'
     },
     {
-      id: 2,
+      id: 'fed',
       title: 'Fed Interest Rate Decision',
       impact: 'High',
       time: 'Tomorrow',
@@ -79,7 +92,7 @@ const MacroEconomics: React.FC = () => {
       description: 'Markets pricing in a 95% chance of a pause.'
     },
     {
-      id: 3,
+      id: 'unemployment',
       title: 'Unemployment Rate',
       impact: 'Medium',
       time: 'Yesterday',
@@ -92,10 +105,10 @@ const MacroEconomics: React.FC = () => {
   ];
 
   const metrics = [
-    { name: 'Target Rate', value: '5.50%', change: 'Unchanged', icon: Target, color: 'text-cyan glow-cyan' },
-    { name: 'M2 Money Supply', value: '$20.8T', change: '-1.2% (YoY)', icon: Activity, color: 'text-cyan glow-cyan' },
-    { name: 'DXY Index', value: '105.32', change: '+0.45%', icon: DollarSign, color: 'text-bearish glow-bearish' },
-    { name: 'Global Liquidity', value: '$172T', change: '+2.1%', icon: Globe, color: 'text-bullish glow-bullish' },
+    { id: 'target-rate', name: 'Target Rate', value: '5.50%', change: 'Unchanged', icon: Target, color: 'text-cyan glow-cyan' },
+    { id: 'm2', name: 'M2 Money Supply', value: '$20.8T', change: '-1.2% (YoY)', icon: Activity, color: 'text-cyan glow-cyan' },
+    { id: 'dxy', name: 'DXY Index', value: '105.32', change: '+0.45%', icon: DollarSign, color: 'text-bearish glow-bearish' },
+    { id: 'global-liquidity', name: 'Global Liquidity', value: '$172T', change: '+2.1%', icon: Globe, color: 'text-bullish glow-bullish' },
   ];
 
   const containerVariants = {
@@ -129,7 +142,7 @@ const MacroEconomics: React.FC = () => {
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-heading font-bold text-white tracking-tight">Macro Economics</h1>
-            <p className="text-gray-400 mt-2 text-lg">Global financial indicators and high-impact economic events.</p>
+            <p className="text-gray-400 mt-2 text-lg">Global financial indicators. Click any card for live data & intelligence.</p>
           </div>
           <div className="flex items-center gap-3 glass-card-laser px-6 py-3">
             <Zap size={18} className="text-[#00ff9d] animate-pulse" />
@@ -139,22 +152,24 @@ const MacroEconomics: React.FC = () => {
 
         {/* Top Metrics Grid */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {metrics.map((m, i) => {
+          {metrics.map((m) => {
             const Icon = m.icon;
             return (
               <motion.div 
-                key={i} 
+                key={m.id} 
                 whileHover={{ scale: 1.02 }}
-                className="glass-card-laser p-6 group"
+                onClick={() => handleCardClick(m.id, Icon, m.color.split(' ')[0], m.color.split(' ')[1] || '')}
+                layoutId={`macro-card-${m.id}`}
+                className="glass-card-laser p-6 group cursor-pointer"
               >
-                <div className="flex justify-between items-start mb-6">
+                <motion.div layoutId={`macro-header-${m.id}`} className="flex justify-between items-start mb-6">
                   <div className="p-3 rounded-2xl bg-white/5 group-hover:bg-white/10 transition-colors">
                     <Icon className={`w-6 h-6 ${m.color}`} />
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full ${m.change.includes('+') ? 'text-bullish glow-bullish bg-bullish/10' : m.change === 'Unchanged' ? 'text-cyan bg-cyan/10 glow-cyan' : 'text-bearish glow-bearish bg-bearish/10'}`}>
                     {m.change}
                   </span>
-                </div>
+                </motion.div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 font-sans">{m.name}</span>
                   <span className="text-3xl font-geist font-bold text-white tracking-tight">{m.value}</span>
@@ -167,15 +182,20 @@ const MacroEconomics: React.FC = () => {
         {/* Charts Section */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* DXY Chart */}
-          <div className="glass-card-laser p-8">
-            <div className="flex justify-between items-center mb-8">
+          <motion.div 
+            whileHover={{ scale: 1.01 }}
+            onClick={() => handleCardClick('dxy', DollarSign, 'text-[#00f5ff]', 'glow-cyan')}
+            layoutId={`macro-card-dxy`}
+            className="glass-card-laser p-8 cursor-pointer"
+          >
+            <motion.div layoutId={`macro-header-dxy`} className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-heading font-bold text-white flex items-center gap-3">
                 <DollarSign className="text-[#00f5ff] glow-cyan" size={24} /> DXY - US Dollar Index
               </h3>
               <div className="flex items-center gap-2 text-bullish glow-bullish font-geist font-bold bg-bullish/10 px-4 py-1.5 rounded-full text-sm">
                 <ArrowUpRight size={18} /> +0.84%
               </div>
-            </div>
+            </motion.div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dxyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -200,18 +220,23 @@ const MacroEconomics: React.FC = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
 
           {/* Bond Yields Chart */}
-          <div className="glass-card-laser p-8">
-            <div className="flex justify-between items-center mb-8">
+          <motion.div 
+            whileHover={{ scale: 1.01 }}
+            onClick={() => handleCardClick('us10y', Activity, 'text-[#ffd700]', 'glow-gold')}
+            layoutId={`macro-card-us10y`}
+            className="glass-card-laser p-8 cursor-pointer"
+          >
+            <motion.div layoutId={`macro-header-us10y`} className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-heading font-bold text-white flex items-center gap-3">
                 <Activity className="text-gold" size={24} /> US 10Y Bond Yield
               </h3>
               <div className="flex items-center gap-2 text-bearish glow-bearish font-geist font-bold bg-bearish/10 px-4 py-1.5 rounded-full text-sm">
                 <ArrowDownRight size={18} /> -0.12%
               </div>
-            </div>
+            </motion.div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={bondYieldData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -236,7 +261,7 @@ const MacroEconomics: React.FC = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* Economic Calendar Section */}
@@ -260,7 +285,12 @@ const MacroEconomics: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {economicEvents.map((event) => (
-                  <tr key={event.id} className="hover:bg-white/5 transition-colors group">
+                  <motion.tr 
+                    key={event.id}
+                    layoutId={`macro-card-${event.id}`}
+                    onClick={() => handleCardClick(event.id, Calendar, 'text-[#00f5ff]', 'glow-cyan')}
+                    className="hover:bg-white/5 transition-colors group cursor-pointer"
+                  >
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
                         <span className="text-lg font-bold text-white group-hover:text-[#00f5ff] transition-colors">{event.title}</span>
@@ -298,7 +328,7 @@ const MacroEconomics: React.FC = () => {
                         <span className="text-sm font-geist text-gray-500">{event.forecast}</span>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
@@ -307,37 +337,65 @@ const MacroEconomics: React.FC = () => {
 
         {/* Recession Indicators & Correlation */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="glass-card-laser p-8 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-2xl bg-bearish/10 flex items-center justify-center text-bearish glow-bearish mb-6 border border-bearish/20">
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            onClick={() => handleCardClick('recession', AlertTriangle, 'text-bearish', 'glow-bearish')}
+            layoutId={`macro-card-recession`}
+            className="glass-card-laser p-8 flex flex-col items-center text-center cursor-pointer"
+          >
+            <motion.div layoutId={`macro-header-recession`} className="w-16 h-16 rounded-2xl bg-bearish/10 flex items-center justify-center text-bearish glow-bearish mb-6 border border-bearish/20">
               <AlertTriangle size={32} />
-            </div>
+            </motion.div>
             <h4 className="text-lg font-heading font-bold text-white mb-2">Recession Probability</h4>
             <span className="text-3xl font-geist font-black text-bearish glow-bearish">65%</span>
             <p className="text-xs text-gray-500 mt-4 leading-relaxed font-sans">Based on the 10Y-2Y yield curve inversion and leading economic indicators.</p>
-          </div>
+          </motion.div>
 
-          <div className="glass-card-laser p-8 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center text-gold mb-6 border border-gold/20">
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            onClick={() => handleCardClick('btc-corr', Activity, 'text-gold', 'glow-gold')}
+            layoutId={`macro-card-btc-corr`}
+            className="glass-card-laser p-8 flex flex-col items-center text-center cursor-pointer"
+          >
+            <motion.div layoutId={`macro-header-btc-corr`} className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center text-gold mb-6 border border-gold/20">
               <Activity size={32} />
-            </div>
+            </motion.div>
             <h4 className="text-lg font-heading font-bold text-white mb-2">BTC Correlation (DXY)</h4>
             <span className="text-3xl font-geist font-black text-gold">-0.82</span>
             <p className="text-xs text-gray-500 mt-4 leading-relaxed font-sans">Bitcoin continues to trade as a high-beta asset with strong inverse correlation to USD strength.</p>
-          </div>
+          </motion.div>
 
-          <div className="glass-card-laser p-8 flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#00f5ff]/10 flex items-center justify-center text-[#00f5ff] glow-cyan mb-6 border border-[#00f5ff]/20">
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            onClick={() => handleCardClick('global-liq', Globe, 'text-[#00f5ff]', 'glow-cyan')}
+            layoutId={`macro-card-global-liq`}
+            className="glass-card-laser p-8 flex flex-col items-center text-center cursor-pointer"
+          >
+            <motion.div layoutId={`macro-header-global-liq`} className="w-16 h-16 rounded-2xl bg-[#00f5ff]/10 flex items-center justify-center text-[#00f5ff] glow-cyan mb-6 border border-[#00f5ff]/20">
               <Globe size={32} />
-            </div>
+            </motion.div>
             <h4 className="text-lg font-heading font-bold text-white mb-2">Global Liquidity Index</h4>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-3xl font-geist font-black text-[#00f5ff] glow-cyan">Neutral</span>
               <TrendingUp size={24} className="text-bullish glow-bullish ml-2" />
             </div>
             <p className="text-xs text-gray-500 mt-4 leading-relaxed font-sans">Central bank balance sheets showing slight expansion in the Asian markets.</p>
-          </div>
+          </motion.div>
         </motion.div>
       </motion.div>
+
+      {/* Advanced Analysis Modal */}
+      <AnimatePresence>
+        {selectedMetricId && (
+          <MacroDetailModal 
+            indicatorId={selectedMetricId}
+            onClose={() => setSelectedMetricId(null)}
+            icon={selectedIcon}
+            colorClass={selectedColor}
+            glowClass={selectedGlow}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
