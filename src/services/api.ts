@@ -87,7 +87,7 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
     'Macro Economics': 'MACRO'
   };
 
-  let url = 'https://data-api.cryptocompare.com/news/v1/article/list?lang=EN&limit=250';
+  let url = 'https://data-api.cryptocompare.com/news/v1/article/list?lang=EN&limit=100';
   if (category !== 'All' && categoryMap[category]) {
     url += `&categories=${categoryMap[category]}`;
   }
