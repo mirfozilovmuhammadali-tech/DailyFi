@@ -158,12 +158,10 @@ const NewsDetailModal: React.FC<Props> = ({ isOpen, onClose, item, isSaved, onTo
                   {item.videos.map((video) => (
                     <a 
                       key={video.id}
-                      href="#"
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="group block relative overflow-hidden rounded-2xl bg-white/5 border border-white/5 hover:border-gold/30 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-300"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Real implementation would open video modal or navigate
-                      }}
                     >
                       <div className="aspect-video relative overflow-hidden bg-black">
                         <img 

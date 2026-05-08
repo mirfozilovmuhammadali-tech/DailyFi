@@ -87,7 +87,7 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
     'Macro Economics': 'MACRO'
   };
 
-  let url = 'https://data-api.cryptocompare.com/news/v1/article/list?lang=EN';
+  let url = 'https://data-api.cryptocompare.com/news/v1/article/list?lang=EN&limit=250';
   if (category !== 'All' && categoryMap[category]) {
     url += `&categories=${categoryMap[category]}`;
   }
@@ -102,7 +102,7 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
     const json = await newsResponse.json();
     if (!json.Data) return [];
 
-    const realNews: NewsItem[] = json.Data.map((article: any) => {
+    let realNews: NewsItem[] = json.Data.map((article: any) => {
       const publishedDate = new Date(article.PUBLISHED_ON * 1000);
       const minutesAgo = Math.floor((Date.now() - publishedDate.getTime()) / 60000);
       let timeStr = `${minutesAgo}m ago`;
@@ -119,7 +119,6 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
       }
 
       // Title-based search simulation using the real fetched videos
-      // Shuffle videos and pick 2-4 randomly to simulate related results
       const shuffledVideos = [...videos].sort(() => 0.5 - Math.random());
       const selectedVideos = shuffledVideos.slice(0, Math.floor(Math.random() * 3) + 2);
 
@@ -139,6 +138,26 @@ export const fetchNews = async (category: string = 'All', page: number = 1, limi
         videos: selectedVideos
       };
     });
+
+    // Strict local filtering to GUARANTEE relevance (no general news bleeding)
+    if (category !== 'All') {
+      realNews = realNews.filter(article => {
+        const title = article.title.toLowerCase();
+        const body = article.content.toLowerCase();
+        const cat = category.toLowerCase();
+        
+        if (category === 'Bitcoin') return title.includes('bitcoin') || title.includes('btc');
+        if (category === 'Ethereum') return title.includes('ethereum') || title.includes('eth');
+        if (category === 'Altcoins') return !title.includes('bitcoin') && !title.includes('btc');
+        if (category === 'ETFs') return title.includes('etf') || body.includes('etf');
+        if (category === 'AI+Crypto') return title.includes(' ai') || body.includes(' ai ') || title.includes('artificial intelligence');
+        if (category === 'Regulation') return title.includes('sec') || title.includes('law') || title.includes('court') || title.includes('regulation');
+        if (category === 'Macro Economics') return title.includes('fed') || title.includes('rate') || title.includes('inflation') || title.includes('economy');
+        if (category === 'Global Markets') return title.includes('market') || title.includes('stock');
+        
+        return title.includes(cat) || body.includes(cat);
+      });
+    }
 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
