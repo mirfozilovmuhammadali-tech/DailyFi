@@ -58,65 +58,110 @@ export const fetchYahooFinanceData = async (symbol: string): Promise<{ current: 
 export const fetchMacroDetails = async (indicatorId: string): Promise<MacroIndicatorDetails> => {
   const timestamp = new Date().toISOString();
   
-  if (indicatorId === 'dxy') {
-    const { current, change, history } = await fetchYahooFinanceData('DX-Y.NYB');
-    return {
-      id: 'dxy',
-      name: 'DXY - US Dollar Index',
+  // Real Yahoo Finance Ticker Mapping
+  const configMap: Record<string, any> = {
+    'dxy': {
       symbol: 'DX-Y.NYB',
-      currentValue: current,
-      change24h: change,
-      explanation: 'The US Dollar Index (DXY) measures the value of the United States dollar relative to a basket of foreign currencies, often referred to as a basket of US trade partners\' currencies.',
-      marketMeaning: 'A rising DXY indicates a strengthening US Dollar. This generally means tighter global liquidity and higher borrowing costs internationally.',
+      name: 'DXY - US Dollar Index',
+      explanation: 'The US Dollar Index measures the value of the USD relative to a basket of foreign currencies.',
+      marketMeaning: 'A rising DXY indicates a strengthening US Dollar, meaning tighter global liquidity and higher borrowing costs.',
       cryptoImpact: 'Bearish',
-      historicalContext: 'Historically, Bitcoin trades as an inverse-dollar asset. High DXY usually correlates with local bottoms in crypto markets.',
-      provider: 'Yahoo Finance API (Live)',
-      chartData: history,
-      lastUpdated: timestamp
-    };
-  }
-
-  if (indicatorId === 'us10y') {
-    const { current, change, history } = await fetchYahooFinanceData('^TNX');
-    return {
-      id: 'us10y',
-      name: 'US 10Y Bond Yield',
+      historicalContext: 'Historically, Bitcoin trades inversely to the dollar. High DXY correlates with local bottoms in crypto.'
+    },
+    'us10y': {
       symbol: '^TNX',
-      currentValue: current,
-      change24h: change,
-      explanation: 'The 10-year Treasury yield is the annualized return an investor earns by holding a US government 10-year bond until maturity.',
-      marketMeaning: 'It serves as a benchmark for borrowing costs globally. Rising yields indicate expectations of higher inflation or stronger economic growth, forcing the Fed to keep rates high.',
+      name: 'US 10Y Bond Yield',
+      explanation: 'The 10-year Treasury yield is the annualized return an investor earns by holding a US government bond.',
+      marketMeaning: 'Serves as a global benchmark for borrowing costs. Rising yields indicate expectations of higher inflation or stronger growth.',
       cryptoImpact: 'Bearish',
-      historicalContext: 'Risk-on assets like Bitcoin face downward pressure when risk-free rates (like the 10Y) rise, as capital rotates into safer government debt.',
-      provider: 'Yahoo Finance API (Live)',
-      chartData: history,
-      lastUpdated: timestamp
-    };
+      historicalContext: 'Risk-on assets like Bitcoin face downward pressure when risk-free rates rise as capital rotates into safe government debt.'
+    },
+    'target-rate': {
+      symbol: '^IRX',
+      name: '13-Week Treasury Bill (Target Rate Proxy)',
+      explanation: 'The 13-week Treasury bill yield closely tracks the Federal Funds Target Rate.',
+      marketMeaning: 'High short-term rates reflect restrictive monetary policy by the Federal Reserve to combat inflation.',
+      cryptoImpact: 'Bearish',
+      historicalContext: 'Crypto bull runs historically begin when the Fed pivots and begins cutting these short-term rates.'
+    },
+    'm2': {
+      symbol: 'GC=F',
+      name: 'Gold Futures (M2/Liquidity Proxy)',
+      explanation: 'Gold is traditionally used to hedge against fiat debasement and M2 Money Supply expansion.',
+      marketMeaning: 'Rising gold prices typically indicate expanding global liquidity and a devaluation of fiat currency.',
+      cryptoImpact: 'Bullish',
+      historicalContext: 'Bitcoin is often referred to as digital gold; both assets expand during periods of M2 supply growth.'
+    },
+    'global-liquidity': {
+      symbol: '^W5000',
+      name: 'Wilshire 5000 (Global Liquidity Proxy)',
+      explanation: 'A broad-based market capitalization-weighted index representing the total US equity market.',
+      marketMeaning: 'Total market capitalization acts as a real-time indicator of global liquidity and risk appetite.',
+      cryptoImpact: 'Bullish',
+      historicalContext: 'High global liquidity flows downstream into higher-beta assets like cryptocurrencies and altcoins.'
+    },
+    'recession': {
+      symbol: '^VIX',
+      name: 'CBOE Volatility Index (Recession Fear Gauge)',
+      explanation: 'The VIX measures market expectation of near-term volatility conveyed by S&P 500 stock index option prices.',
+      marketMeaning: 'Spikes in the VIX indicate fear, panic, and an increased probability of an impending recession or market crash.',
+      cryptoImpact: 'Bearish',
+      historicalContext: 'Extreme VIX spikes (e.g., March 2020) historically cause severe short-term liquidations in crypto markets.'
+    },
+    'btc-corr': {
+      symbol: 'BTC-USD',
+      name: 'Bitcoin vs DXY Correlation',
+      explanation: 'Tracking real-time Bitcoin price action to measure its inverse correlation with the broader macro environment.',
+      marketMeaning: 'When BTC rises while traditional equities or the Dollar falls, it demonstrates decoupling and strong fundamental strength.',
+      cryptoImpact: 'Bullish',
+      historicalContext: 'During peak accumulation phases, Bitcoin begins to decouple from the stock market and front-runs macro liquidity.'
+    },
+    'cpi': {
+      symbol: 'TIP',
+      name: 'Treasury Inflation-Protected Securities (CPI Proxy)',
+      explanation: 'TIPS are government bonds whose principal increases with inflation (CPI).',
+      marketMeaning: 'Rising TIPS prices indicate that the market expects higher future inflation and CPI prints.',
+      cryptoImpact: 'Neutral',
+      historicalContext: 'While inflation technically debases fiat (bullish for BTC), high CPI prints force the Fed to raise rates (bearish for BTC).'
+    },
+    'fed': {
+      symbol: 'TLT',
+      name: '20+ Year Treasury Bond (Fed Pivot Gauge)',
+      explanation: 'Long-term government bonds that react aggressively to shifts in Federal Reserve policy expectations.',
+      marketMeaning: 'A rising TLT indicates the market is pricing in rate cuts and a "dovish" pivot from the Federal Reserve.',
+      cryptoImpact: 'Bullish',
+      historicalContext: 'The moment the Fed pivots to cutting rates, risk-on assets typically experience massive capital inflows.'
+    },
+    'unemployment': {
+      symbol: '^DJI',
+      name: 'Dow Jones (Labor Market Health Proxy)',
+      explanation: 'The Dow tracks 30 prominent companies. Industrial health is heavily correlated with unemployment.',
+      marketMeaning: 'A strong labor market usually supports higher equity prices but can also keep inflation sticky.',
+      cryptoImpact: 'Neutral',
+      historicalContext: 'If unemployment spikes drastically, it forces the Fed to print money to stimulate the economy, which is highly bullish for crypto.'
+    }
+  };
+
+  const config = configMap[indicatorId];
+  
+  if (!config) {
+    throw new Error(`Indicator ID ${indicatorId} not mapped.`);
   }
 
-  // Add more dynamic fetching logic here for other indicators...
-  // For UI testing, return dynamic algorithmic data if API is unmapped
-  
-  const baseValue = indicatorId === 'btc-corr' ? -0.82 : indicatorId === 'recession' ? 65 : 5.50;
-  
+  const { current, change, history } = await fetchYahooFinanceData(config.symbol);
+
   return {
     id: indicatorId,
-    name: indicatorId.toUpperCase() + ' Metric',
-    symbol: 'CUSTOM',
-    currentValue: baseValue,
-    change24h: 0.12,
-    explanation: 'Detailed quantitative breakdown of this macroeconomic indicator and its underlying mechanics.',
-    marketMeaning: 'This indicator acts as a leading oscillator for global market risk-appetite.',
-    cryptoImpact: 'Neutral',
-    historicalContext: 'In previous cycles, this metric crossing key thresholds has triggered massive capital rotations.',
-    provider: 'Algorithmic Synthesis',
-    chartData: [
-      { date: 'Mon', value: baseValue * 0.98 },
-      { date: 'Tue', value: baseValue * 0.99 },
-      { date: 'Wed', value: baseValue * 1.01 },
-      { date: 'Thu', value: baseValue * 1.05 },
-      { date: 'Fri', value: baseValue * 0.95 },
-    ],
+    name: config.name,
+    symbol: config.symbol,
+    currentValue: current,
+    change24h: change,
+    explanation: config.explanation,
+    marketMeaning: config.marketMeaning,
+    cryptoImpact: config.cryptoImpact,
+    historicalContext: config.historicalContext,
+    provider: 'Yahoo Finance API (Live)',
+    chartData: history,
     lastUpdated: timestamp
   };
 };
