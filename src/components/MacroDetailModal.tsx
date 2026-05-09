@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, TrendingUp, TrendingDown, Clock, ShieldAlert, FileText, Database, Activity } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Clock, ShieldAlert, FileText, Database, Activity, AlertCircle, RefreshCw } from 'lucide-react';
 import { 
   LineChart, 
   Line, 
@@ -11,6 +11,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { fetchMacroDetails, type MacroIndicatorDetails } from '../services/macroApi';
+import { AdvancedChartWidget } from './TradingViewWidgets';
 
 interface MacroDetailModalProps {
   indicatorId: string;
@@ -31,34 +32,45 @@ const GlowingDot = (props: any) => {
   );
 };
 
+// Map local IDs to TradingView fallback symbols
+const fallbackSymbolMap: Record<string, string> = {
+  'dxy': 'TVC:DXY',
+  'us10y': 'TVC:US10Y',
+  'target-rate': 'ECONOMICS:USINTR',
+  'm2': 'ECONOMICS:USM2',
+  'global-liquidity': 'TVC:W5000',
+  'recession': 'TVC:VIX',
+  'btc-corr': 'CRYPTO:BTCUSD',
+  'cpi': 'ECONOMICS:USCPI',
+  'fed': 'AMEX:TLT',
+  'unemployment': 'ECONOMICS:USUR'
+};
+
 export const MacroDetailModal: React.FC<MacroDetailModalProps> = ({ indicatorId, onClose, icon: Icon, colorClass, glowClass }) => {
   const [data, setData] = useState<MacroIndicatorDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(false);
+      const result = await fetchMacroDetails(indicatorId);
+      setData(result);
+    } catch (err) {
+      console.error("Failed to load macro details", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const result = await fetchMacroDetails(indicatorId);
-        if (isMounted) {
-          setData(result);
-        }
-      } catch (err) {
-        console.error("Failed to load macro details", err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
     loadData();
 
     // Auto refresh every 60 seconds
     const interval = setInterval(loadData, 60000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [indicatorId]);
 
   return (
@@ -82,9 +94,9 @@ export const MacroDetailModal: React.FC<MacroDetailModalProps> = ({ indicatorId,
             </div>
             <div>
               <h2 className="text-3xl font-heading font-bold text-white tracking-tight">
-                {data ? data.name : 'Loading Analysis...'}
+                {data ? data.name : error ? 'Data Source Unavailable' : 'Loading Analysis...'}
               </h2>
-              {data && (
+              {data && !error && (
                 <div className="flex items-center gap-4 mt-2">
                   <span className="text-sm font-mono text-gray-400 flex items-center gap-1">
                     <Database size={14} /> Source: {data.provider}
@@ -104,9 +116,33 @@ export const MacroDetailModal: React.FC<MacroDetailModalProps> = ({ indicatorId,
           </button>
         </motion.div>
 
-        {loading && !data ? (
-          <div className="p-12 flex justify-center items-center h-64">
+        {loading ? (
+          <div className="p-12 flex flex-col justify-center items-center h-64 gap-4">
             <div className={`w-12 h-12 rounded-full border-2 border-transparent border-t-current animate-spin ${colorClass}`}></div>
+            <p className="text-gray-400 font-mono text-sm animate-pulse">Establishing secure connection to data provider...</p>
+          </div>
+        ) : error ? (
+          <div className="p-8 space-y-6">
+            <div className="glass-card p-6 bg-bearish/10 border border-bearish/20 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <AlertCircle className="text-bearish glow-bearish" size={32} />
+                <div>
+                  <h3 className="text-lg font-bold text-white">Service Temporarily Unavailable</h3>
+                  <p className="text-sm text-gray-400">The primary data proxy was blocked by CORS or timed out. Falling back to public widget feed.</p>
+                </div>
+              </div>
+              <button 
+                onClick={loadData}
+                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10 text-sm font-bold uppercase tracking-widest"
+              >
+                <RefreshCw size={16} /> Retry Connection
+              </button>
+            </div>
+            
+            {/* Fallback TradingView Widget */}
+            <div className="glass-card p-4 bg-white/5 border border-white/5 h-[400px] relative overflow-hidden">
+              <AdvancedChartWidget symbol={fallbackSymbolMap[indicatorId] || 'TVC:DXY'} />
+            </div>
           </div>
         ) : data && (
           <div className="p-8 space-y-8">

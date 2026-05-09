@@ -27,7 +27,9 @@ export interface MacroIndicatorDetails {
 export const fetchYahooFinanceData = async (symbol: string): Promise<{ current: number, change: number, history: MacroDataPoint[] }> => {
   try {
     const targetUrl = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`);
-    const response = await axios.get(`${CORS_PROXY}${targetUrl}`);
+    
+    // Add 5-second timeout to prevent infinite loading
+    const response = await axios.get(`${CORS_PROXY}${targetUrl}`, { timeout: 5000 });
     
     const data = JSON.parse(response.data.contents);
     const result = data.chart.result[0];
@@ -51,7 +53,7 @@ export const fetchYahooFinanceData = async (symbol: string): Promise<{ current: 
     return { current, change, history };
   } catch (error) {
     console.error(`Error fetching real data for ${symbol}:`, error);
-    throw error;
+    throw new Error('API Timeout or CORS Blocked');
   }
 };
 
