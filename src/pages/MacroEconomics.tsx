@@ -23,8 +23,9 @@ const MacroEconomics: React.FC = () => {
   const metrics = [
     { id: 'dxy', name: 'DXY Index', symbol: 'TVC:DXY', icon: DollarSign, color: 'text-bearish glow-bearish' },
     { id: 'us10y', name: 'US 10Y Yield', symbol: 'TVC:US10Y', icon: Activity, color: 'text-cyan glow-cyan' },
-    { id: 'm2', name: 'M2 Money Supply', symbol: 'FRED:M2SL', icon: Zap, color: 'text-gold glow-gold' },
     { id: 'nasdaq', name: 'Nasdaq 100', symbol: 'NASDAQ:NDX', icon: Globe, color: 'text-bullish glow-bullish' },
+    { id: 'gold', name: 'Gold Spot', symbol: 'OANDA:XAUUSD', icon: Zap, color: 'text-gold glow-gold' },
+    { id: 'btc', name: 'Bitcoin', symbol: 'BINANCE:BTCUSDT', icon: TrendingUp, color: 'text-orange-500 glow-gold' },
   ];
 
   return (
@@ -50,7 +51,7 @@ const MacroEconomics: React.FC = () => {
         </motion.div>
 
         {/* Top Metrics Grid */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {metrics.map((m) => {
             const Icon = m.icon;
             return (
