@@ -32,20 +32,36 @@ const FALLBACK_DATA: Record<string, MacroData> = {
       value: 4.2 + Math.random() * 0.2
     }))
   },
-  'M2SL': {
-    current: 20.8,
-    change: 1.1,
-    history: Array.from({ length: 12 }, (_, i) => ({
-      date: `Month ${i + 1}`,
-      value: 20.2 + i * 0.05
+  'GC=F': {
+    current: 2345.50,
+    change: 0.45,
+    history: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
+      value: 2300 + i * 2 + Math.random() * 10
     }))
   },
-  'W5000': {
-    current: 52450,
+  'BTC-USD': {
+    current: 64230.15,
+    change: 2.15,
+    history: Array.from({ length: 30 }, (_, i) => ({
+      date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
+      value: 60000 + i * 150 + Math.random() * 500
+    }))
+  },
+  '^IXIC': {
+    current: 16250.45,
     change: 0.85,
     history: Array.from({ length: 30 }, (_, i) => ({
       date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { weekday: 'short' }),
-      value: 51000 + i * 50 + Math.random() * 100
+      value: 15800 + i * 15 + Math.random() * 50
+    }))
+  },
+  'M2SL': {
+    current: 20.8,
+    change: 0.1,
+    history: Array.from({ length: 12 }, (_, i) => ({
+      date: `M${i + 1}`,
+      value: 20.2 + i * 0.05
     }))
   }
 };
