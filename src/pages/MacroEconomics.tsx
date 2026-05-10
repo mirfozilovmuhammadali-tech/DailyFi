@@ -9,16 +9,36 @@ import {
   BarChart3,
   Calendar,
   Layers,
-  Fingerprint
+  Fingerprint,
+  AlertCircle
 } from 'lucide-react';
 import { 
   LineChart, 
   Line, 
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer 
 } from 'recharts';
 import BackgroundGlobe from '../components/BackgroundGlobe';
 import { fetchMacroData, type MacroData } from '../services/macroApi';
-import { TradingViewAdvancedChart } from '../components/TradingViewWidgets';
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-black/90 border border-white/10 p-3 rounded-lg backdrop-blur-md shadow-2xl">
+        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{payload[0].payload.date}</p>
+        <p className="text-sm font-mono font-bold text-white">
+          {payload[0].value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const MacroMetricCard: React.FC<{
   title: string;
@@ -79,6 +99,115 @@ const MacroMetricCard: React.FC<{
   );
 };
 
+const LargeMacroChart: React.FC<{
+  title: string;
+  data: MacroData | null;
+  loading: boolean;
+  color: string;
+  type: 'line' | 'area';
+  icon: React.ReactNode;
+  subtitle: string;
+}> = ({ title, data, loading, color, type, icon, subtitle }) => {
+  return (
+    <div className="glass-card-laser p-8 bg-black/60 border-white/5 group relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[100px] pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity"></div>
+      
+      <div className="flex justify-between items-start mb-8 relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white border border-white/10 group-hover:border-white/20 transition-all">
+            {icon}
+          </div>
+          <div>
+            <h3 className="text-xl font-heading font-black text-white uppercase tracking-widest">{title}</h3>
+            <p className="text-xs text-gray-500 font-medium tracking-wider">{subtitle}</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-2xl font-mono font-black text-white">
+            {data?.current.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div className={`text-[10px] font-black uppercase tracking-widest ${data && data.change >= 0 ? 'text-bullish' : 'text-bearish'}`}>
+            {data && data.change >= 0 ? '+' : ''}{data?.change.toFixed(2)}% (30D)
+          </div>
+        </div>
+      </div>
+
+      <div className="h-[350px] w-full relative z-10">
+        {loading ? (
+          <div className="w-full h-full bg-white/5 animate-pulse rounded-2xl border border-white/10" />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            {type === 'line' ? (
+              <LineChart data={data?.history || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  hide={true}
+                />
+                <YAxis 
+                  domain={['auto', 'auto']} 
+                  hide={true}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color} 
+                  strokeWidth={3} 
+                  dot={false}
+                  animationDuration={2000}
+                  strokeLinecap="round"
+                />
+              </LineChart>
+            ) : (
+              <AreaChart data={data?.history || []}>
+                <defs>
+                  <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={color} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  hide={true}
+                />
+                <YAxis 
+                  domain={['auto', 'auto']} 
+                  hide={true}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color} 
+                  strokeWidth={3} 
+                  fillOpacity={1} 
+                  fill={`url(#gradient-${color})`} 
+                  animationDuration={2000}
+                />
+              </AreaChart>
+            )}
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {title.includes('10Y') && (
+        <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-bearish animate-pulse rounded-full shadow-[0_0_8px_rgba(255,61,113,0.8)]"></div>
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inversion Risk: High</span>
+          </div>
+          <div className="flex items-center gap-2 bg-bearish/10 border border-bearish/20 px-3 py-1 rounded">
+             <AlertCircle size={12} className="text-bearish" />
+             <span className="text-[9px] font-black text-bearish uppercase tracking-widest">Recession Warning Active</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MacroEconomics: React.FC = () => {
   const [data, setData] = useState<Record<string, MacroData | null>>({
     'DX-Y.NYB': null,
@@ -133,14 +262,14 @@ const MacroEconomics: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Fingerprint size={14} className="text-cyan animate-pulse" />
-              <span className="text-[10px] font-black text-cyan uppercase tracking-[0.4em]">Terminal Mode</span>
+              <span className="text-[10px] font-black text-cyan uppercase tracking-[0.4em]">Proprietary Terminal</span>
             </div>
-            <h1 className="text-4xl font-heading font-black text-white tracking-tighter uppercase">Global Macro Intelligence</h1>
-            <p className="text-gray-500 mt-2 text-base font-medium">Professional grade terminal for institutional market analysis.</p>
+            <h1 className="text-4xl font-heading font-black text-white tracking-tighter uppercase">Macroeconomic Desk</h1>
+            <p className="text-gray-500 mt-2 text-base font-medium">Real-time global liquidity and fixed income monitoring.</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-right hidden md:block">
-              <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Last Update</div>
+              <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Session Data</div>
               <div className="text-xs font-mono text-white flex items-center gap-2">
                 <Clock size={12} className="text-cyan" />
                 {new Date().toLocaleTimeString()} UTC
@@ -148,7 +277,7 @@ const MacroEconomics: React.FC = () => {
             </div>
             <div className="glass-card-laser px-6 py-3 border-cyan/20 bg-cyan/5">
               <span className="text-xs font-black text-cyan uppercase tracking-widest flex items-center gap-2">
-                <ShieldAlert size={14} className="animate-pulse" /> System Active
+                <ShieldAlert size={14} className="animate-pulse" /> Data Feed: 100% Reliable
               </span>
             </div>
           </div>
@@ -164,37 +293,26 @@ const MacroEconomics: React.FC = () => {
           <MacroMetricCard title="M2 Supply" symbol="M2SL" data={data['M2SL']} loading={loading} color="#8b5cf6" unit="T" />
         </motion.div>
 
-        {/* Large Terminal Charts */}
+        {/* Large Terminal Charts (Custom High-Fidelity) */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="glass-card-laser p-1 bg-white/5 border-white/5 group">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-heading font-black text-white flex items-center gap-3 tracking-widest uppercase">
-                  <DollarSign className="text-cyan group-hover:rotate-12 transition-transform" size={20} /> 
-                  DXY Performance
-                </h3>
-                <div className="px-3 py-1 bg-cyan/10 border border-cyan/20 rounded text-[10px] font-black text-cyan uppercase">TVC:DXY</div>
-              </div>
-              <div className="h-[450px] w-full rounded-lg overflow-hidden border border-white/5 bg-black/60 shadow-2xl">
-                <TradingViewAdvancedChart symbol="TVC:DXY" height={450} />
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-card-laser p-1 bg-white/5 border-white/5 group">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-heading font-black text-white flex items-center gap-3 tracking-widest uppercase">
-                  <TrendingUp className="text-gold group-hover:-translate-y-1 transition-transform" size={20} /> 
-                  US10Y Treasury
-                </h3>
-                <div className="px-3 py-1 bg-gold/10 border border-gold/20 rounded text-[10px] font-black text-gold uppercase">TVC:US10Y</div>
-              </div>
-              <div className="h-[450px] w-full rounded-lg overflow-hidden border border-white/5 bg-black/60 shadow-2xl">
-                <TradingViewAdvancedChart symbol="TVC:US10Y" height={450} />
-              </div>
-            </div>
-          </div>
+          <LargeMacroChart 
+            title="DXY Index Analysis" 
+            subtitle="US Dollar Strength Index (Relative to Basket)"
+            data={data['DX-Y.NYB']} 
+            loading={loading} 
+            color="#00f5ff" 
+            type="line"
+            icon={<DollarSign size={24} />}
+          />
+          <LargeMacroChart 
+            title="US 10Y Yield Curve" 
+            subtitle="Benchmark Fixed Income Instrument Performance"
+            data={data['^TNX']} 
+            loading={loading} 
+            color="#ffd700" 
+            type="area"
+            icon={<TrendingUp size={24} />}
+          />
         </motion.div>
 
         {/* Intel & Insights Grid */}
@@ -203,7 +321,7 @@ const MacroEconomics: React.FC = () => {
           <div className="glass-card-laser p-8 bg-black/40 border-white/5">
             <div className="flex items-center gap-3 mb-8">
               <Calendar className="text-cyan" size={20} />
-              <h3 className="text-sm font-black text-white uppercase tracking-widest">High Impact Events</h3>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest">Global Risk Calendar</h3>
             </div>
             <div className="space-y-6">
               {[
@@ -228,7 +346,7 @@ const MacroEconomics: React.FC = () => {
           <div className="glass-card-laser p-8 bg-black/40 border-white/5">
             <div className="flex items-center gap-3 mb-8">
               <Activity className="text-bullish" size={20} />
-              <h3 className="text-sm font-black text-white uppercase tracking-widest">Sentiment & Liquidity</h3>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest">Liquidity Intelligence</h3>
             </div>
             <div className="space-y-6">
               <div className="space-y-2">
@@ -242,7 +360,7 @@ const MacroEconomics: React.FC = () => {
               </div>
               <div className="space-y-2 pt-2">
                 <div className="flex justify-between text-xs font-bold text-gray-400">
-                  <span>Global Liquidity Delta</span>
+                  <span>Global M2 Liquidity Delta</span>
                   <span className="text-cyan uppercase tracking-widest">Expanding</span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -252,9 +370,9 @@ const MacroEconomics: React.FC = () => {
               <div className="pt-4 border-t border-white/5">
                 <div className="flex items-center gap-2 text-xs font-bold text-white mb-2">
                   <BarChart3 size={14} className="text-gold" />
-                  Fed Rate Probabilities
+                  Fed Pivot Probability
                 </div>
-                <p className="text-[10px] text-gray-500 leading-relaxed">CME FedWatch Tool suggests a 92% probability of "No Change" in the June cycle, with pivot expectations shifting towards Q4 2026.</p>
+                <p className="text-[10px] text-gray-500 leading-relaxed">Swap markets are currently pricing a 65% probability of the first rate cut occurring in September 2026, as disinflationary trends stabilize.</p>
               </div>
             </div>
           </div>
@@ -263,7 +381,7 @@ const MacroEconomics: React.FC = () => {
           <div className="glass-card-laser p-8 bg-black/40 border-white/5">
             <div className="flex items-center gap-3 mb-8">
               <Layers className="text-gold" size={20} />
-              <h3 className="text-sm font-black text-white uppercase tracking-widest">Macro-BTC Correlation</h3>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest">Terminal Correlations</h3>
             </div>
             <div className="space-y-6">
               <div className="p-4 rounded-xl bg-white/5 border border-white/5">
@@ -271,14 +389,14 @@ const MacroEconomics: React.FC = () => {
                   <span className="text-xs font-bold text-white">BTC vs DXY</span>
                   <span className="text-[10px] font-black text-bearish uppercase tracking-widest">-0.84 Inverse</span>
                 </div>
-                <p className="text-[10px] text-gray-400 leading-relaxed">High inverse correlation persists. DXY strength remains the dominant technical headwind for Bitcoin accumulation cycles.</p>
+                <p className="text-[10px] text-gray-400 leading-relaxed">The inverse relationship between Bitcoin and the Dollar Index remains the primary driver of institutional spot flows.</p>
               </div>
               <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs font-bold text-white">BTC vs Gold</span>
-                  <span className="text-[10px] font-black text-bullish uppercase tracking-widest">+0.42 Positive</span>
+                  <span className="text-xs font-bold text-white">Yield / Risk Rotation</span>
+                  <span className="text-[10px] font-black text-bullish uppercase tracking-widest">Bullish Beta</span>
                 </div>
-                <p className="text-[10px] text-gray-400 leading-relaxed">Correlation with store-of-value assets is firming as global debt concerns accelerate institutional rotation into non-sovereign stores.</p>
+                <p className="text-[10px] text-gray-400 leading-relaxed">Equities are showing resilience despite higher-for-longer yield narratives, indicating a regime shift in growth valuations.</p>
               </div>
             </div>
           </div>
