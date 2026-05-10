@@ -1,62 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Zap, 
-  Activity, 
-  DollarSign, 
-  Globe,
-  AlertTriangle,
-  ShieldAlert,
-  Clock
-} from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
+import { Zap, ShieldAlert, Activity, DollarSign, Globe, TrendingUp } from 'lucide-react';
 import BackgroundGlobe from '../components/BackgroundGlobe';
-import { fetchMacroData, type MacroData } from '../services/macroApi';
-
-const GlowingDot = (props: any) => {
-  const { cx, cy, stroke } = props;
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={2.5} fill={stroke} />
-      <circle cx={cx} cy={cy} r={6} fill={stroke} opacity={0.3} className="animate-pulse" />
-      <circle cx={cx} cy={cy} r={12} fill={stroke} opacity={0.1} />
-    </g>
-  );
-};
+import { TradingViewMiniChart, TradingViewAdvancedChart } from '../components/TradingViewWidgets';
 
 const MacroEconomics: React.FC = () => {
-  const [dxyData, setDxyData] = useState<MacroData | null>(null);
-  const [tnxData, setTnxData] = useState<MacroData | null>(null);
-  const [m2Data, setM2Data] = useState<MacroData | null>(null);
-  const [liqData, setLiqData] = useState<MacroData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadAllData = async () => {
-      setLoading(true);
-      const [dxy, tnx, m2, liq] = await Promise.all([
-        fetchMacroData('DX-Y.NYB'),
-        fetchMacroData('^TNX'),
-        fetchMacroData('M2SL'),
-        fetchMacroData('W5000')
-      ]);
-      setDxyData(dxy);
-      setTnxData(tnx);
-      setM2Data(m2);
-      setLiqData(liq);
-      setLoading(false);
-    };
-    loadAllData();
-  }, []);
-
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -73,10 +21,10 @@ const MacroEconomics: React.FC = () => {
   };
 
   const metrics = [
-    { id: 'dxy', name: 'DXY Index', data: dxyData, icon: DollarSign, color: 'text-bearish glow-bearish' },
-    { id: 'us10y', name: 'US 10Y Yield', data: tnxData, icon: Activity, color: 'text-cyan glow-cyan' },
-    { id: 'm2', name: 'M2 Money Supply', data: m2Data, icon: Zap, color: 'text-gold glow-gold' },
-    { id: 'liq', name: 'Global Liquidity', data: liqData, icon: Globe, color: 'text-bullish glow-bullish' },
+    { id: 'dxy', name: 'DXY Index', symbol: 'TVC:DXY', icon: DollarSign, color: 'text-bearish glow-bearish' },
+    { id: 'us10y', name: 'US 10Y Yield', symbol: 'TVC:US10Y', icon: Activity, color: 'text-cyan glow-cyan' },
+    { id: 'm2', name: 'M2 Money Supply', symbol: 'FRED:M2SL', icon: Zap, color: 'text-gold glow-gold' },
+    { id: 'nasdaq', name: 'Nasdaq 100', symbol: 'NASDAQ:NDX', icon: Globe, color: 'text-bullish glow-bullish' },
   ];
 
   return (
@@ -89,14 +37,15 @@ const MacroEconomics: React.FC = () => {
         initial="hidden"
         animate="show"
       >
+        {/* Header Section */}
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-heading font-bold text-white tracking-tight">Macro Economics</h1>
-            <p className="text-gray-400 mt-2 text-lg">High-Fidelity Financial Intelligence Terminal.</p>
+            <p className="text-gray-400 mt-2 text-lg">Real-time Financial Intelligence Terminal.</p>
           </div>
           <div className="flex items-center gap-3 glass-card-laser px-6 py-3">
             <ShieldAlert size={18} className="text-[#00ff9d] animate-pulse" />
-            <span className="text-sm font-bold text-[#00ff9d] uppercase tracking-widest laser-badge">Live System: Operational</span>
+            <span className="text-sm font-bold text-[#00ff9d] uppercase tracking-widest laser-badge">Live Feed: Operational</span>
           </div>
         </motion.div>
 
@@ -105,127 +54,67 @@ const MacroEconomics: React.FC = () => {
           {metrics.map((m) => {
             const Icon = m.icon;
             return (
-              <div key={m.id} className="glass-card-laser p-6 group">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="p-3 rounded-2xl bg-white/5">
-                    <Icon className={`w-6 h-6 ${m.color}`} />
+              <div key={m.id} className="glass-card-laser p-4 group overflow-hidden">
+                <div className="flex justify-between items-center mb-2 px-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-4 h-4 ${m.color}`} />
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest font-sans">{m.name}</span>
                   </div>
-                  {m.data && (
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${m.data.change >= 0 ? 'text-bullish glow-bullish bg-bullish/10' : 'text-bearish glow-bearish bg-bearish/10'}`}>
-                      {m.data.change >= 0 ? '+' : ''}{m.data.change.toFixed(2)}%
-                    </span>
-                  )}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 font-sans">{m.name}</span>
-                  <span className="text-3xl font-geist font-bold text-white tracking-tight">
-                    {loading ? '---' : m.data?.current.toLocaleString(undefined, { maximumFractionDigits: m.id === 'us10y' ? 2 : 2 })}
-                    {m.id === 'us10y' ? '%' : m.id === 'm2' ? 'T' : ''}
-                  </span>
+                <div className="h-[120px] w-full rounded-lg overflow-hidden border border-white/5 bg-black/20">
+                  <TradingViewMiniChart symbol={m.symbol} height={120} />
                 </div>
               </div>
             );
           })}
         </motion.div>
 
-        {/* Charts Section */}
+        {/* Large Interactive Charts */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* DXY Chart */}
-          <div className="glass-card-laser p-8">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xl font-heading font-bold text-white flex items-center gap-3">
-                <DollarSign className="text-[#00f5ff] glow-cyan" size={24} /> DXY Trajectory
-              </h3>
-              <div className="flex items-center gap-2 text-gray-500 font-mono text-xs">
-                <Clock size={14} /> 30D Window
-              </div>
-            </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dxyData?.history || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="date" stroke="#4b5563" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis hide domain={['dataMin - 0.5', 'dataMax + 0.5']} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff', fontFamily: 'Geist Mono, monospace', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#9ca3af', textTransform: 'uppercase', fontSize: '12px', fontWeight: 'bold' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#00f5ff" 
-                    strokeWidth={2} 
-                    strokeDasharray="4 4"
-                    dot={<GlowingDot stroke="#00f5ff" />} 
-                    activeDot={{ r: 8, stroke: "#fff", strokeWidth: 2 }}
-                    animationDuration={2000}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* DXY Advanced Chart */}
+          <div className="glass-card-laser p-6 bg-black/40">
+            <h3 className="text-xl font-heading font-bold text-white mb-6 flex items-center gap-3">
+              <DollarSign className="text-cyan glow-cyan" size={24} /> US Dollar Index (DXY)
+            </h3>
+            <div className="h-[450px] w-full rounded-xl overflow-hidden border border-white/5 bg-black/60 shadow-inner">
+              <TradingViewAdvancedChart symbol="TVC:DXY" height={450} />
             </div>
           </div>
 
-          {/* Bond Yields Chart */}
-          <div className="glass-card-laser p-8">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xl font-heading font-bold text-white flex items-center gap-3">
-                <Activity className="text-gold glow-gold" size={24} /> US10Y Bond Yield
-              </h3>
-              <div className="flex items-center gap-2 text-gray-500 font-mono text-xs">
-                <Clock size={14} /> 30D Window
-              </div>
-            </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={tnxData?.history || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis dataKey="date" stroke="#4b5563" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis hide domain={['dataMin - 0.1', 'dataMax + 0.1']} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff', fontFamily: 'Geist Mono, monospace', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#9ca3af', textTransform: 'uppercase', fontSize: '12px', fontWeight: 'bold' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#ffd700" 
-                    strokeWidth={2} 
-                    strokeDasharray="4 4"
-                    dot={<GlowingDot stroke="#ffd700" />} 
-                    activeDot={{ r: 8, stroke: "#fff", strokeWidth: 2 }}
-                    animationDuration={2000}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* US10Y Advanced Chart */}
+          <div className="glass-card-laser p-6 bg-black/40">
+            <h3 className="text-xl font-heading font-bold text-white mb-6 flex items-center gap-3">
+              <TrendingUp className="text-gold glow-gold" size={24} /> US 10Y Treasury Yield
+            </h3>
+            <div className="h-[450px] w-full rounded-xl overflow-hidden border border-white/5 bg-black/60 shadow-inner">
+              <TradingViewAdvancedChart symbol="TVC:US10Y" height={450} />
             </div>
           </div>
         </motion.div>
 
         {/* Intelligence Insight */}
-        <motion.div variants={itemVariants} className="glass-card-laser p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-bullish/10 flex items-center justify-center text-bullish glow-bullish border border-bullish/20">
-              <AlertTriangle size={24} />
+        <motion.div variants={itemVariants} className="glass-card-laser p-8 bg-black/60">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center text-cyan glow-cyan border border-cyan/20">
+              <Zap size={24} />
             </div>
             <div>
-              <h3 className="text-xl font-heading font-bold text-white">Market Intelligence Analysis</h3>
-              <p className="text-sm text-gray-500">Real-time correlation insights for digital assets.</p>
+              <h3 className="text-2xl font-heading font-bold text-white">Market Intelligence Correlation</h3>
+              <p className="text-sm text-gray-400">Automated insights from live terminal feeds.</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Crypto Sentiment</span>
-              <p className="text-white text-sm leading-relaxed">DXY strength remains the primary headwind for Bitcoin. Current trajectory suggests a period of consolidation as liquidity rotates.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="space-y-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-cyan/30 transition-colors">
+              <span className="text-xs font-bold text-cyan uppercase tracking-widest border-b border-cyan/30 pb-2 block">BTC Correlation</span>
+              <p className="text-gray-300 text-sm leading-relaxed">DXY strength remains the primary inverse signal for Bitcoin. Current trajectory suggests institutional rotation into safe-haven assets as volatility spikes.</p>
             </div>
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Yield Impact</span>
-              <p className="text-white text-sm leading-relaxed">Bond yields are stabilizing near multi-year highs, creating pressure on risk-on environments and equity markets.</p>
+            <div className="space-y-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-gold/30 transition-colors">
+              <span className="text-xs font-bold text-gold uppercase tracking-widest border-b border-gold/30 pb-2 block">Fixed Income Signal</span>
+              <p className="text-gray-300 text-sm leading-relaxed">Bond yields are stabilizing at multi-year resistance levels. A breakout above 4.5% could trigger a broader sell-off in growth-oriented tech sectors.</p>
             </div>
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">M2 Correlation</span>
-              <p className="text-white text-sm leading-relaxed">Monetary expansion signals are beginning to bottom out, historically a precursor to long-term digital asset accumulation.</p>
+            <div className="space-y-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-bullish/30 transition-colors">
+              <span className="text-xs font-bold text-bullish uppercase tracking-widest border-b border-bullish/30 pb-2 block">Macro Liquidity</span>
+              <p className="text-gray-300 text-sm leading-relaxed">M2 Money Supply expansion is plateauing. Historical data indicates that digital assets thrive in environments where global liquidity indices show a rising 12-month delta.</p>
             </div>
           </div>
         </motion.div>
