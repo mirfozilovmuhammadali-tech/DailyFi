@@ -28,10 +28,13 @@ interface Playbook {
 }
 
 const Strategy: React.FC = () => {
-  // Global Live Feed Simulator Variables
+  // Global Live Feed Simulator Variables (Initialized per image_7db11b.png)
   const [simDxy, setSimDxy] = useState<number>(103.5);
-  const [simM2, setSimM2] = useState<number>(5.2);
+  const [simM2, setSimM2] = useState<number>(5.4);
   const [simFearGreed, setSimFearGreed] = useState<number>(35);
+
+  // Automatic Feed Update Tick Counter
+  const [secondsToTick, setSecondsToTick] = useState<number>(60);
 
   // Strategy Builder State
   const [ifCondition, setIfCondition] = useState<string>('dxy');
@@ -42,7 +45,7 @@ const Strategy: React.FC = () => {
   const [simulationResult, setSimulationResult] = useState<any>(null);
   
   // Active Portfolio State (Conservative / Aggressive / null)
-  const [activePortfolio, setActivePortfolio] = useState<'conservative' | 'aggressive' | null>(null);
+  const [activePortfolioId, setActivePortfolioId] = useState<'conservative' | 'aggressive' | null>(null);
 
   // Notification State
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
@@ -80,6 +83,36 @@ const Strategy: React.FC = () => {
       conditionMet: false
     }
   ]);
+
+  // 1-Minute Automatic Fluctuation Engine (useEffect & setInterval)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsToTick(prev => {
+        if (prev <= 1) {
+          // Fluctuate DXY by +/- 0.05
+          setSimDxy(d => {
+            const dir = Math.random() > 0.5 ? 1 : -1;
+            return Number(Math.min(110.0, Math.max(100.0, d + dir * 0.05)).toFixed(2));
+          });
+          // Fluctuate M2 by +/- 0.1%
+          setSimM2(m => {
+            const dir = Math.random() > 0.5 ? 1 : -1;
+            return Number(Math.min(10.0, Math.max(0.0, m + dir * 0.1)).toFixed(1));
+          });
+          // Fluctuate Fear & Greed by +/- 1
+          setSimFearGreed(fg => {
+            const dir = Math.random() > 0.5 ? 1 : -1;
+            return Math.min(90, Math.max(10, fg + dir));
+          });
+          triggerNotification("Live data feed ticked and updated automatically", "info");
+          return 60;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Dynamically evaluate playbooks based on live feed values
   useEffect(() => {
@@ -130,17 +163,29 @@ const Strategy: React.FC = () => {
     }
   };
 
-  // Adjust simulator variables
+  // Adjust simulator variables (Manual overrides)
   const adjustDxy = (amount: number) => {
-    setSimDxy(prev => Math.min(110.0, Math.max(100.0, Number((prev + amount).toFixed(1)))));
+    setSimDxy(prev => {
+      const nextVal = Math.min(110.0, Math.max(100.0, Number((prev + amount).toFixed(2))));
+      triggerNotification(`Manually adjusted DXY to ${nextVal.toFixed(2)}`, 'info');
+      return nextVal;
+    });
   };
 
   const adjustM2 = (amount: number) => {
-    setSimM2(prev => Math.min(10.0, Math.max(0.0, Number((prev + amount).toFixed(1)))));
+    setSimM2(prev => {
+      const nextVal = Math.min(10.0, Math.max(0.0, Number((prev + amount).toFixed(1))));
+      triggerNotification(`Manually adjusted M2 to ${nextVal.toFixed(1)}%`, 'info');
+      return nextVal;
+    });
   };
 
   const adjustFearGreed = (amount: number) => {
-    setSimFearGreed(prev => Math.min(90, Math.max(10, prev + amount)));
+    setSimFearGreed(prev => {
+      const nextVal = Math.min(90, Math.max(10, prev + amount));
+      triggerNotification(`Manually adjusted Fear & Greed to ${nextVal}`, 'info');
+      return nextVal;
+    });
   };
 
   // Generate Interactive Simulation Recommendation
@@ -233,19 +278,20 @@ const Strategy: React.FC = () => {
   // Reset simulator values to default
   const resetSimulator = () => {
     setSimDxy(103.5);
-    setSimM2(5.2);
+    setSimM2(5.4);
     setSimFearGreed(35);
+    setSecondsToTick(60);
     triggerNotification("Simulator values reset to defaults", "info");
   };
 
-  // Toggle portfolio simulation deployment
-  const togglePortfolio = (portfolio: 'conservative' | 'aggressive') => {
-    if (activePortfolio === portfolio) {
-      setActivePortfolio(null);
-      triggerNotification(`${portfolio === 'conservative' ? 'Conservative' : 'Aggressive'} simulation undeployed`, 'info');
+  // Toggle portfolio simulation deployment using activePortfolioId mutex
+  const togglePortfolio = (portfolioId: 'conservative' | 'aggressive') => {
+    if (activePortfolioId === portfolioId) {
+      setActivePortfolioId(null);
+      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation undeployed`, 'info');
     } else {
-      setActivePortfolio(portfolio);
-      triggerNotification(`${portfolio === 'conservative' ? 'Conservative' : 'Aggressive'} simulation deployed`, 'success');
+      setActivePortfolioId(portfolioId);
+      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation deployed`, 'success');
     }
   };
 
@@ -286,9 +332,9 @@ const Strategy: React.FC = () => {
             <Lock size={14} className="text-gold" />
             <span className="text-[10px] font-black text-gold uppercase tracking-widest laser-badge">Simulation Mode Active</span>
           </div>
-          {activePortfolio ? (
+          {activePortfolioId ? (
             <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/10 border border-cyan/20 px-3 py-1 rounded shadow-[0_0_15px_rgba(0,245,255,0.2)] animate-pulse">
-              ACTIVE PROFILE: {activePortfolio === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'}
+              ACTIVE PROFILE: {activePortfolioId === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'}
             </div>
           ) : (
             <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-white/5 border border-white/5 px-3 py-1 rounded">
@@ -298,7 +344,7 @@ const Strategy: React.FC = () => {
         </div>
       </div>
 
-      {/* REDESIGNED LIVE MACRO FEED SIMULATOR (Premium Increment/Decrement Matrix) */}
+      {/* DYNAMIC LIVE FEED SIMULATOR (Increment/Decrement Matrix) */}
       <div className="glass-card-laser p-6 bg-black/40 border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
         
@@ -308,10 +354,13 @@ const Strategy: React.FC = () => {
               <span className="w-1.5 h-4 bg-cyan rounded-full"></span>
               Live Macro Feed Simulator
             </h3>
-            <p className="text-[10px] text-gray-500 font-medium tracking-wider mt-1">Sleek increment controls matching terminal feedback thresholds.</p>
+            <p className="text-[10px] text-gray-500 font-medium tracking-wider mt-1">
+              Automatic updates every 60s. Next update in <span className="font-mono text-cyan font-bold">{secondsToTick}s</span>.
+            </p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/5 border border-cyan/20 px-3 py-1.5 rounded">
+            <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/5 border border-cyan/20 px-3 py-1.5 rounded flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse"></span>
               Data Feed: 100% Reliable
             </div>
             <button 
@@ -340,7 +389,7 @@ const Strategy: React.FC = () => {
                 <Minus size={14} />
               </button>
               <div className="text-2xl font-mono font-black text-white tracking-wider glow-cyan">
-                {simDxy.toFixed(1)}
+                {simDxy.toFixed(2)}
               </div>
               <button 
                 onClick={() => adjustDxy(0.1)}
@@ -498,7 +547,7 @@ const Strategy: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
         {/* Portfolio A */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
-          activePortfolio === 'conservative' 
+          activePortfolioId === 'conservative' 
             ? 'border-cyan shadow-[0_0_25px_rgba(0,245,255,0.15)] bg-black/80' 
             : 'border-white/5'
         }`}>
@@ -568,19 +617,19 @@ const Strategy: React.FC = () => {
             <button 
               onClick={() => togglePortfolio('conservative')}
               className={`px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-                activePortfolio === 'conservative'
+                activePortfolioId === 'conservative'
                   ? 'bg-cyan text-black shadow-[0_0_15px_rgba(0,245,255,0.4)] font-black'
                   : 'bg-white/5 border border-white/10 hover:border-cyan/55 text-white'
               }`}
             >
-              {activePortfolio === 'conservative' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
+              {activePortfolioId === 'conservative' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
             </button>
           </div>
         </div>
 
         {/* Portfolio B */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
-          activePortfolio === 'aggressive' 
+          activePortfolioId === 'aggressive' 
             ? 'border-cyan shadow-[0_0_25px_rgba(0,245,255,0.15)] bg-black/80' 
             : 'border-white/5'
         }`}>
@@ -650,12 +699,12 @@ const Strategy: React.FC = () => {
             <button 
               onClick={() => togglePortfolio('aggressive')}
               className={`px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-                activePortfolio === 'aggressive'
+                activePortfolioId === 'aggressive'
                   ? 'bg-cyan text-black shadow-[0_0_15px_rgba(0,245,255,0.4)] font-black'
                   : 'bg-white/5 border border-white/10 hover:border-cyan/55 text-white'
               }`}
             >
-              {activePortfolio === 'aggressive' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
+              {activePortfolioId === 'aggressive' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
             </button>
           </div>
         </div>
