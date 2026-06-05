@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -28,12 +28,12 @@ interface Playbook {
 }
 
 const Strategy: React.FC = () => {
-  // Global Live Feed Simulator Variables (Initialized per image_7db11b.png)
+  // Global Live Feed Simulator Variables
   const [simDxy, setSimDxy] = useState<number>(103.5);
   const [simM2, setSimM2] = useState<number>(5.4);
   const [simFearGreed, setSimFearGreed] = useState<number>(35);
 
-  // Automatic Feed Update Tick Counter
+  // Automatic Feed Tick Counter
   const [secondsToTick, setSecondsToTick] = useState<number>(60);
 
   // Strategy Builder State
@@ -44,11 +44,14 @@ const Strategy: React.FC = () => {
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
   const [simulationResult, setSimulationResult] = useState<any>(null);
   
-  // Active Portfolio State (Conservative / Aggressive / null)
-  const [activePortfolioId, setActivePortfolioId] = useState<'conservative' | 'aggressive' | null>(null);
+  // Unified Portfolio Deployment State (conservative / aggressive / null)
+  const [activePortfolio, setActivePortfolio] = useState<'conservative' | 'aggressive' | null>(null);
 
-  // Notification State
+  // Toast Notification State
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
+
+  // Ref for scrolling to portfolio cards
+  const portfolioSectionRef = useRef<HTMLDivElement>(null);
 
   // Playbooks Data with dynamic condition checks
   const [playbooks, setPlaybooks] = useState<Playbook[]>([
@@ -104,7 +107,7 @@ const Strategy: React.FC = () => {
             const dir = Math.random() > 0.5 ? 1 : -1;
             return Math.min(90, Math.max(10, fg + dir));
           });
-          triggerNotification("Live data feed ticked and updated automatically", "info");
+          triggerNotification("Live data feed ticked automatically", "info");
           return 60;
         }
         return prev - 1;
@@ -186,6 +189,27 @@ const Strategy: React.FC = () => {
       triggerNotification(`Manually adjusted Fear & Greed to ${nextVal}`, 'info');
       return nextVal;
     });
+  };
+
+  // Toggle portfolio simulation deployment
+  const togglePortfolio = (portfolioId: 'conservative' | 'aggressive') => {
+    if (activePortfolio === portfolioId) {
+      setActivePortfolio(null);
+      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation undeployed`, 'info');
+    } else {
+      setActivePortfolio(portfolioId);
+      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation deployed`, 'success');
+    }
+  };
+
+  // Handle Playbook "SIMULATE >" Action
+  const handlePlaybookSimulate = (playbookId: string) => {
+    const targetPortfolio = playbookId === 'playbook-3' ? 'aggressive' : 'conservative';
+    setActivePortfolio(targetPortfolio);
+    
+    // Smooth scroll down to Model Portfolios Section
+    portfolioSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    triggerNotification(`Simulating Playbook target: Selected & Highlighted ${targetPortfolio === 'conservative' ? 'Conservative' : 'Aggressive'} Portfolio`, 'success');
   };
 
   // Generate Interactive Simulation Recommendation
@@ -284,17 +308,6 @@ const Strategy: React.FC = () => {
     triggerNotification("Simulator values reset to defaults", "info");
   };
 
-  // Toggle portfolio simulation deployment using activePortfolioId mutex
-  const togglePortfolio = (portfolioId: 'conservative' | 'aggressive') => {
-    if (activePortfolioId === portfolioId) {
-      setActivePortfolioId(null);
-      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation undeployed`, 'info');
-    } else {
-      setActivePortfolioId(portfolioId);
-      triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation deployed`, 'success');
-    }
-  };
-
   return (
     <div className="relative min-h-screen pb-12 space-y-10 animate-in fade-in duration-500">
       
@@ -332,9 +345,9 @@ const Strategy: React.FC = () => {
             <Lock size={14} className="text-gold" />
             <span className="text-[10px] font-black text-gold uppercase tracking-widest laser-badge">Simulation Mode Active</span>
           </div>
-          {activePortfolioId ? (
+          {activePortfolio ? (
             <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/10 border border-cyan/20 px-3 py-1 rounded shadow-[0_0_15px_rgba(0,245,255,0.2)] animate-pulse">
-              ACTIVE PROFILE: {activePortfolioId === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'}
+              ACTIVE PROFILE: {activePortfolio === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'}
             </div>
           ) : (
             <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-white/5 border border-white/5 px-3 py-1 rounded">
@@ -344,142 +357,108 @@ const Strategy: React.FC = () => {
         </div>
       </div>
 
-      {/* DYNAMIC LIVE FEED SIMULATOR (Increment/Decrement Matrix) */}
-      <div className="glass-card-laser p-6 bg-black/40 border-white/5 relative overflow-hidden">
+      {/* OVERHAULED LIVE MACRO FEED SIMULATOR (Sleek Horizontal Dock) */}
+      <div className="glass-card-laser bg-black/40 border-white/5 py-4 px-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl"></div>
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10 border-b border-white/5 pb-4 mb-6">
+        {/* Left Side Info */}
+        <div className="flex items-center gap-4 relative z-10 shrink-0">
+          <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/5 border border-cyan/20 px-2.5 py-1.5 rounded flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse"></span>
+            Live Feed Console
+          </div>
           <div>
-            <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-cyan rounded-full"></span>
-              Live Macro Feed Simulator
-            </h3>
-            <p className="text-[10px] text-gray-500 font-medium tracking-wider mt-1">
-              Automatic updates every 60s. Next update in <span className="font-mono text-cyan font-bold">{secondsToTick}s</span>.
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">Macro Feed Simulator</h3>
+            <p className="text-[9px] text-gray-500 font-medium">
+              Auto ticks in <span className="font-mono text-cyan font-bold">{secondsToTick}s</span>
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/5 border border-cyan/20 px-3 py-1.5 rounded flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse"></span>
-              Data Feed: 100% Reliable
-            </div>
-            <button 
-              onClick={resetSimulator}
-              className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 hover:text-cyan border border-white/5 hover:border-cyan/30 px-3 py-1.5 rounded transition-all active:scale-95 bg-white/5"
-            >
-              <RefreshCcw size={12} /> Reset Feed
-            </button>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+        {/* Matrix of Indicators (Compact side-by-side row) */}
+        <div className="flex flex-wrap items-center justify-center gap-6 relative z-10 w-full max-w-2xl">
           
-          {/* DXY Control Module */}
-          <div className="bg-black/60 rounded-xl p-4 border border-white/5 flex flex-col justify-between h-[115px] relative">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">US Dollar Index (DXY)</span>
-              <span className="text-[9px] font-bold text-cyan bg-cyan/10 border border-cyan/20 px-2 py-0.5 rounded">Target: &lt; 104</span>
-            </div>
-            
-            <div className="flex items-center justify-between my-2">
+          {/* DXY Compact Control */}
+          <div className="flex items-center gap-3 bg-black/60 border border-white/5 px-4 py-2 rounded-lg relative overflow-hidden flex-1 min-w-[170px]">
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">DXY</span>
+            <div className="flex items-center gap-2 ml-auto">
               <button 
-                onClick={() => adjustDxy(-0.1)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                onClick={() => adjustDxy(-0.05)}
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Minus size={14} />
+                <Minus size={10} />
               </button>
-              <div className="text-2xl font-mono font-black text-white tracking-wider glow-cyan">
-                {simDxy.toFixed(2)}
-              </div>
+              <span className="text-xs font-mono font-black text-white w-12 text-center">{simDxy.toFixed(2)}</span>
               <button 
-                onClick={() => adjustDxy(0.1)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                onClick={() => adjustDxy(0.05)}
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Plus size={14} />
+                <Plus size={10} />
               </button>
             </div>
-            
-            {/* DXY Laser Threshold Line */}
-            <div className="absolute bottom-0 left-0 w-full px-4">
-              <div className={`h-0.5 w-full rounded-full transition-all duration-500 ${
-                simDxy < 104 
-                  ? 'bg-bullish shadow-[0_0_10px_rgba(0,192,118,0.8)]' 
-                  : 'bg-white/5'
-              }`} />
-            </div>
+            {/* Laser Underline */}
+            <div className={`absolute bottom-0 left-0 w-full h-0.5 transition-all duration-500 ${
+              simDxy < 104 ? 'bg-bullish shadow-[0_0_8px_rgba(0,192,118,0.8)]' : 'bg-transparent'
+            }`} />
           </div>
 
-          {/* M2 Growth Control Module */}
-          <div className="bg-black/60 rounded-xl p-4 border border-white/5 flex flex-col justify-between h-[115px] relative">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">M2 Liquidity Growth</span>
-              <span className="text-[9px] font-bold text-cyan bg-cyan/10 border border-cyan/20 px-2 py-0.5 rounded">Target: &gt; 2.0%</span>
-            </div>
-            
-            <div className="flex items-center justify-between my-2">
+          {/* M2 Compact Control */}
+          <div className="flex items-center gap-3 bg-black/60 border border-white/5 px-4 py-2 rounded-lg relative overflow-hidden flex-1 min-w-[170px]">
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">M2</span>
+            <div className="flex items-center gap-2 ml-auto">
               <button 
                 onClick={() => adjustM2(-0.1)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Minus size={14} />
+                <Minus size={10} />
               </button>
-              <div className="text-2xl font-mono font-black text-white tracking-wider glow-cyan">
-                {simM2.toFixed(1)}%
-              </div>
+              <span className="text-xs font-mono font-black text-white w-12 text-center">{simM2.toFixed(1)}%</span>
               <button 
                 onClick={() => adjustM2(0.1)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Plus size={14} />
+                <Plus size={10} />
               </button>
             </div>
-            
-            {/* M2 Laser Threshold Line */}
-            <div className="absolute bottom-0 left-0 w-full px-4">
-              <div className={`h-0.5 w-full rounded-full transition-all duration-500 ${
-                simM2 > 2.0 
-                  ? 'bg-bullish shadow-[0_0_10px_rgba(0,192,118,0.8)]' 
-                  : 'bg-white/5'
-              }`} />
-            </div>
+            {/* Laser Underline */}
+            <div className={`absolute bottom-0 left-0 w-full h-0.5 transition-all duration-500 ${
+              simM2 > 2.0 ? 'bg-bullish shadow-[0_0_8px_rgba(0,192,118,0.8)]' : 'bg-transparent'
+            }`} />
           </div>
 
-          {/* Fear & Greed Control Module */}
-          <div className="bg-black/60 rounded-xl p-4 border border-white/5 flex flex-col justify-between h-[115px] relative">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fear & Greed Index</span>
-              <span className="text-[9px] font-bold text-cyan bg-cyan/10 border border-cyan/20 px-2 py-0.5 rounded">Target: &lt; 40</span>
-            </div>
-            
-            <div className="flex items-center justify-between my-2">
+          {/* Fear & Greed Compact Control */}
+          <div className="flex items-center gap-3 bg-black/60 border border-white/5 px-4 py-2 rounded-lg relative overflow-hidden flex-1 min-w-[170px]">
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-wider shrink-0">F&G</span>
+            <div className="flex items-center gap-2 ml-auto">
               <button 
-                onClick={() => adjustFearGreed(-5)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                onClick={() => adjustFearGreed(-1)}
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Minus size={14} />
+                <Minus size={10} />
               </button>
-              <div className="text-2xl font-mono font-black text-white tracking-wider glow-cyan">
-                {simFearGreed}
-              </div>
+              <span className="text-xs font-mono font-black text-white w-12 text-center">{simFearGreed}</span>
               <button 
-                onClick={() => adjustFearGreed(5)}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
+                onClick={() => adjustFearGreed(1)}
+                className="w-5 h-5 rounded bg-white/5 border border-white/10 hover:border-cyan/50 hover:bg-cyan/10 flex items-center justify-center text-white transition-colors active:scale-90"
               >
-                <Plus size={14} />
+                <Plus size={10} />
               </button>
             </div>
-            
-            {/* Fear & Greed Laser Threshold Line */}
-            <div className="absolute bottom-0 left-0 w-full px-4">
-              <div className={`h-0.5 w-full rounded-full transition-all duration-500 ${
-                simFearGreed < 40 
-                  ? 'bg-bullish shadow-[0_0_10px_rgba(0,192,118,0.8)]' 
-                  : 'bg-white/5'
-              }`} />
-            </div>
+            {/* Laser Underline */}
+            <div className={`absolute bottom-0 left-0 w-full h-0.5 transition-all duration-500 ${
+              simFearGreed < 40 ? 'bg-bullish shadow-[0_0_8px_rgba(0,192,118,0.8)]' : 'bg-transparent'
+            }`} />
           </div>
 
         </div>
+
+        {/* Right Side Reset */}
+        <button 
+          onClick={resetSimulator}
+          className="flex items-center gap-1 text-[9px] font-black text-gray-400 hover:text-cyan border border-white/5 hover:border-cyan/30 px-2.5 py-1.5 rounded transition-all active:scale-95 bg-white/5 shrink-0 relative z-10"
+        >
+          <RefreshCcw size={10} /> Reset
+        </button>
       </div>
 
       {/* SECTION 1: ACTIVE MACRO PLAYBOOKS */}
@@ -529,11 +508,12 @@ const Strategy: React.FC = () => {
                 </div>
               </div>
 
+              {/* Glowing fully interactive action button */}
               <div className="pt-4 border-t border-white/5 relative z-10 flex items-center justify-between mt-4">
                 <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Playbook Target</div>
                 <button 
-                  onClick={() => triggerNotification(`Playbook simulation updated for: ${p.name}`, 'info')}
-                  className="text-xs font-black text-gold uppercase tracking-widest flex items-center gap-1 group-hover:gap-2 transition-all"
+                  onClick={() => handlePlaybookSimulate(p.id)}
+                  className="px-3 py-1.5 rounded-lg border border-gold/20 bg-gold/5 hover:bg-gold/15 text-xs font-black text-gold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_10px_rgba(255,215,0,0.05)] hover:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all active:scale-95"
                 >
                   Simulate <ChevronRight size={14} />
                 </button>
@@ -544,12 +524,13 @@ const Strategy: React.FC = () => {
       </div>
 
       {/* SECTION 2: MODEL PORTFOLIOS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
-        {/* Portfolio A */}
+      <div ref={portfolioSectionRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+        
+        {/* Portfolio A - Conservative */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
-          activePortfolioId === 'conservative' 
-            ? 'border-cyan shadow-[0_0_25px_rgba(0,245,255,0.15)] bg-black/80' 
-            : 'border-white/5'
+          activePortfolio === 'conservative' 
+            ? 'border-cyan ring-1 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.25)] bg-black/80' 
+            : 'border-white/5 hover:border-white/20'
         }`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] pointer-events-none opacity-20"></div>
           
@@ -617,21 +598,21 @@ const Strategy: React.FC = () => {
             <button 
               onClick={() => togglePortfolio('conservative')}
               className={`px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-                activePortfolioId === 'conservative'
-                  ? 'bg-cyan text-black shadow-[0_0_15px_rgba(0,245,255,0.4)] font-black'
+                activePortfolio === 'conservative'
+                  ? 'bg-cyan text-black shadow-[0_0_20px_rgba(0,245,255,0.5)] font-black border border-cyan/50'
                   : 'bg-white/5 border border-white/10 hover:border-cyan/55 text-white'
               }`}
             >
-              {activePortfolioId === 'conservative' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
+              {activePortfolio === 'conservative' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
             </button>
           </div>
         </div>
 
-        {/* Portfolio B */}
+        {/* Portfolio B - Aggressive */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
-          activePortfolioId === 'aggressive' 
-            ? 'border-cyan shadow-[0_0_25px_rgba(0,245,255,0.15)] bg-black/80' 
-            : 'border-white/5'
+          activePortfolio === 'aggressive' 
+            ? 'border-cyan ring-1 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.25)] bg-black/80' 
+            : 'border-white/5 hover:border-white/20'
         }`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] pointer-events-none opacity-20"></div>
           
@@ -699,15 +680,16 @@ const Strategy: React.FC = () => {
             <button 
               onClick={() => togglePortfolio('aggressive')}
               className={`px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-                activePortfolioId === 'aggressive'
-                  ? 'bg-cyan text-black shadow-[0_0_15px_rgba(0,245,255,0.4)] font-black'
+                activePortfolio === 'aggressive'
+                  ? 'bg-cyan text-black shadow-[0_0_20px_rgba(0,245,255,0.5)] font-black border border-cyan/50'
                   : 'bg-white/5 border border-white/10 hover:border-cyan/55 text-white'
               }`}
             >
-              {activePortfolioId === 'aggressive' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
+              {activePortfolio === 'aggressive' ? 'SIMULATION DEPLOYED' : 'Deploy Simulation'}
             </button>
           </div>
         </div>
+
       </div>
 
       {/* SECTION 3: INTERACTIVE "IF-THEN" STRATEGY BUILDER */}
