@@ -47,8 +47,17 @@ const Strategy: React.FC = () => {
   // Unified Portfolio Deployment State (conservative / aggressive / null)
   const [activePortfolio, setActivePortfolio] = useState<'conservative' | 'aggressive' | null>(null);
 
+  // Simulated Live Account Balance ($132,390.20 baseline)
+  const [accountBalance, setAccountBalance] = useState<number>(132390.20);
+
+  // Expanded Playbook Brief State
+  const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
+
   // Toast Notification State
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
+
+  // High-Tech Bottom-Right Overlay System Alert State
+  const [systemAlert, setSystemAlert] = useState<string | null>(null);
 
   // Ref for scrolling to portfolio cards
   const portfolioSectionRef = useRef<HTMLDivElement>(null);
@@ -136,6 +145,44 @@ const Strategy: React.FC = () => {
     }));
   }, [simDxy, simM2, simFearGreed]);
 
+  // Simulated Account Balance Fluctuation Engine
+  useEffect(() => {
+    if (!activePortfolio) {
+      setAccountBalance(132390.20);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setAccountBalance(prev => {
+        const isUp = Math.random() > 0.5;
+        if (activePortfolio === 'conservative') {
+          // Conservative changes subtly by +/- $10
+          const delta = Number((Math.random() * 10).toFixed(2));
+          return Number((prev + (isUp ? delta : -delta)).toFixed(2));
+        } else {
+          // Aggressive swings wildly by +/- $140
+          const delta = Number((Math.random() * 140).toFixed(2));
+          return Number((prev + (isUp ? delta : -delta)).toFixed(2));
+        }
+      });
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [activePortfolio]);
+
+  // Helper to format currency
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  };
+
+  // Helper to trigger bottom-right matrix overlay alerts
+  const triggerSystemAlert = (message: string) => {
+    setSystemAlert(message);
+    setTimeout(() => {
+      setSystemAlert(null);
+    }, 6000);
+  };
+
   // Helper for status styles
   const getStatusBadge = (status: Playbook['status']) => {
     if (status === 'ACTIVE') {
@@ -191,7 +238,7 @@ const Strategy: React.FC = () => {
     });
   };
 
-  // Toggle portfolio simulation deployment
+  // Toggle portfolio simulation deployment (safe toggle-off & mutex selection)
   const togglePortfolio = (portfolioId: 'conservative' | 'aggressive') => {
     if (activePortfolio === portfolioId) {
       setActivePortfolio(null);
@@ -199,17 +246,20 @@ const Strategy: React.FC = () => {
     } else {
       setActivePortfolio(portfolioId);
       triggerNotification(`${portfolioId === 'conservative' ? 'Conservative' : 'Aggressive'} simulation deployed`, 'success');
+      triggerSystemAlert("SYSTEM: Strategy profile successfully injected into Live Matrix Simulation Engine.");
     }
   };
 
-  // Handle Playbook "SIMULATE >" Action
+  // Handle Playbook "SIMULATE >" Action (link to portfolio highlighting & scroll)
   const handlePlaybookSimulate = (playbookId: string) => {
-    const targetPortfolio = playbookId === 'playbook-3' ? 'aggressive' : 'conservative';
+    // DXY Inversion -> Aggressive. Fed Pivot -> Conservative. Liquidity Surge -> Aggressive.
+    const targetPortfolio = playbookId === 'playbook-2' ? 'conservative' : 'aggressive';
     setActivePortfolio(targetPortfolio);
     
     // Smooth scroll down to Model Portfolios Section
     portfolioSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     triggerNotification(`Simulating Playbook target: Selected & Highlighted ${targetPortfolio === 'conservative' ? 'Conservative' : 'Aggressive'} Portfolio`, 'success');
+    triggerSystemAlert(`SYSTEM: Playbook target selection injected. Highlighting ${targetPortfolio === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'} allocation model.`);
   };
 
   // Generate Interactive Simulation Recommendation
@@ -330,8 +380,26 @@ const Strategy: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* High-Tech Matrix System Alert Overlay */}
+      <AnimatePresence>
+        {systemAlert && (
+          <motion.div 
+            initial={{ opacity: 0, x: 100, y: 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0, x: 50, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-[250] bg-black/95 border border-cyan/30 text-cyan px-6 py-4 rounded-xl shadow-[0_0_30px_rgba(0,245,255,0.3)] backdrop-blur-md max-w-sm flex items-start gap-3"
+          >
+            <div className="w-2 h-2 rounded-full bg-cyan animate-ping mt-1.5 shrink-0" />
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-cyan/70 mb-1">Matrix Terminal Status</div>
+              <p className="text-xs font-mono font-bold leading-relaxed">{systemAlert}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Cpu size={14} className="text-gold animate-pulse" />
@@ -340,20 +408,30 @@ const Strategy: React.FC = () => {
           <h1 className="text-4xl font-heading font-black text-white tracking-tighter uppercase">Strategy Desks</h1>
           <p className="text-gray-500 mt-2 text-base font-medium">Data-driven playbooks matching macroeconomic variables with asset allocation profiles.</p>
         </div>
-        <div className="flex flex-col gap-2 items-end">
-          <div className="flex items-center gap-3 glass-card-laser px-5 py-2.5 border-gold/10 bg-gold/5">
-            <Lock size={14} className="text-gold" />
-            <span className="text-[10px] font-black text-gold uppercase tracking-widest laser-badge">Simulation Mode Active</span>
+        
+        {/* Dynamic Badges and Live Account Balance */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="glass-card-laser px-5 py-3 border-cyan/15 bg-cyan/5 flex flex-col items-end shrink-0 rounded-xl">
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Simulated Matrix Value</span>
+            <span className="text-xl font-mono font-black text-cyan tracking-wider glow-cyan mt-0.5">
+              {formatCurrency(accountBalance)}
+            </span>
           </div>
-          {activePortfolio ? (
-            <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/10 border border-cyan/20 px-3 py-1 rounded shadow-[0_0_15px_rgba(0,245,255,0.2)] animate-pulse">
-              ACTIVE PROFILE: {activePortfolio === 'conservative' ? 'CONSERVATIVE' : 'AGGRESSIVE'}
+          <div className="flex flex-col gap-2 items-end shrink-0">
+            <div className="flex items-center gap-3 glass-card-laser px-4 py-2 border-gold/10 bg-gold/5">
+              <Lock size={12} className="text-gold" />
+              <span className="text-[10px] font-black text-gold uppercase tracking-widest laser-badge">Simulation Mode Active</span>
             </div>
-          ) : (
-            <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-white/5 border border-white/5 px-3 py-1 rounded">
-              ACTIVE PROFILE: NONE
-            </div>
-          )}
+            {activePortfolio ? (
+              <div className="text-[10px] font-black text-cyan uppercase tracking-widest bg-cyan/10 border border-cyan/20 px-3 py-1 rounded shadow-[0_0_15px_rgba(0,245,255,0.2)] animate-pulse">
+                ACTIVE PROFILE: {activePortfolio.toUpperCase()}
+              </div>
+            ) : (
+              <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-white/5 border border-white/5 px-3 py-1 rounded">
+                ACTIVE PROFILE: NONE
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -477,9 +555,12 @@ const Strategy: React.FC = () => {
           {playbooks.map((p) => (
             <div 
               key={p.id} 
-              className={`glass-card-laser p-6 flex flex-col justify-between h-[280px] transition-all duration-500 group relative ${
-                p.status === 'ACTIVE' 
-                  ? 'border-bullish/30 shadow-[0_0_20px_rgba(0,192,118,0.05)] bg-black/50' 
+              onClick={() => setSelectedPlaybookId(prev => prev === p.id ? null : p.id)}
+              className={`glass-card-laser p-6 flex flex-col justify-between h-[280px] transition-all duration-500 group relative cursor-pointer ${
+                selectedPlaybookId === p.id 
+                  ? 'border-cyan shadow-[0_0_20px_rgba(0,245,255,0.1)] bg-black/60' 
+                  : p.status === 'ACTIVE'
+                  ? 'border-bullish/30 shadow-[0_0_20px_rgba(0,192,118,0.05)] bg-black/50 hover:border-cyan/30'
                   : 'bg-black/40 border-white/5 hover:border-white/20'
               }`}
             >
@@ -508,11 +589,14 @@ const Strategy: React.FC = () => {
                 </div>
               </div>
 
-              {/* Glowing fully interactive action button */}
+              {/* Glowing action simulate button */}
               <div className="pt-4 border-t border-white/5 relative z-10 flex items-center justify-between mt-4">
                 <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Playbook Target</div>
                 <button 
-                  onClick={() => handlePlaybookSimulate(p.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlaybookSimulate(p.id);
+                  }}
                   className="px-3 py-1.5 rounded-lg border border-gold/20 bg-gold/5 hover:bg-gold/15 text-xs font-black text-gold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_10px_rgba(255,215,0,0.05)] hover:shadow-[0_0_15px_rgba(255,215,0,0.2)] transition-all active:scale-95"
                 >
                   Simulate <ChevronRight size={14} />
@@ -521,6 +605,36 @@ const Strategy: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Dynamic Analytical Brief Expansion Drawer */}
+        <AnimatePresence>
+          {selectedPlaybookId && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden w-full pt-2"
+            >
+              <div className="glass-card-laser p-6 bg-cyan/5 border-cyan/20 rounded-xl relative shadow-[0_0_20px_rgba(0,245,255,0.05)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Info size={14} className="text-cyan animate-pulse" />
+                  <span className="text-[10px] font-black text-cyan uppercase tracking-widest">Integrated Analytical Matrix Brief</span>
+                </div>
+                <p className="text-sm font-mono text-gray-300 leading-relaxed">
+                  {selectedPlaybookId === 'playbook-1' && 
+                    "ANALYSIS: DXY weakness historically triggers capital rotation into high-beta risk assets. Current matrix yields a 78% historical probability of Layer-1 outperformance."
+                  }
+                  {selectedPlaybookId === 'playbook-2' && 
+                    "ANALYSIS: Interest rate cuts expand global M2 money supply. Recommended action: Systematic DCA into hard store-of-value assets (BTC/ETH)."
+                  }
+                  {selectedPlaybookId === 'playbook-3' && 
+                    "ANALYSIS: High global liquidity growth combined with extreme fear creates an optimal asymmetric risk-reward window. Reallocating into ecosystem and high-beta protocols."
+                  }
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* SECTION 2: MODEL PORTFOLIOS */}
@@ -529,9 +643,9 @@ const Strategy: React.FC = () => {
         {/* Portfolio A - Conservative */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
           activePortfolio === 'conservative' 
-            ? 'border-cyan ring-1 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.25)] bg-black/80' 
+            ? 'border-cyan ring-2 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.3)] bg-black/80' 
             : 'border-white/5 hover:border-white/20'
-        }`}>
+        } ${activePortfolio === 'conservative' ? 'animate-[pulse_4s_infinite]' : ''}`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] pointer-events-none opacity-20"></div>
           
           <div className="flex justify-between items-start mb-6">
@@ -611,9 +725,9 @@ const Strategy: React.FC = () => {
         {/* Portfolio B - Aggressive */}
         <div className={`glass-card-laser p-8 bg-black/60 relative overflow-hidden transition-all duration-500 ${
           activePortfolio === 'aggressive' 
-            ? 'border-cyan ring-1 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.25)] bg-black/80' 
+            ? 'border-cyan ring-2 ring-cyan shadow-[0_0_30px_rgba(0,245,255,0.3)] bg-black/80' 
             : 'border-white/5 hover:border-white/20'
-        }`}>
+        } ${activePortfolio === 'aggressive' ? 'animate-[pulse_4s_infinite]' : ''}`}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] pointer-events-none opacity-20"></div>
           
           <div className="flex justify-between items-start mb-6">
