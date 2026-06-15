@@ -4,7 +4,7 @@ import { LayoutDashboard, PieChart, LineChart, Target, Globe, Newspaper } from '
 
 const Layout: React.FC = () => {
   const navItems = [
-    { name: 'Overview', path: '/', icon: <LayoutDashboard size={18} /> },
+    { name: 'Overview', path: '/overview', icon: <LayoutDashboard size={18} /> },
     { name: 'Dashboard', path: '/dashboard', icon: <Target size={18} /> },
     { name: 'Portfolio', path: '/portfolio', icon: <PieChart size={18} /> },
     { name: 'Watchlist', path: '/watchlist', icon: <LineChart size={18} /> },

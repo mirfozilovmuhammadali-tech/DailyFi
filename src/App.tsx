@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import LandingPage from './pages/LandingPage';
 import Overview from './pages/Overview';
 import Portfolio from './pages/Portfolio';
 import Watchlist from './pages/Watchlist';
@@ -12,8 +13,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Overview />} />
+        {/* Landing Page as the root entry point */}
+        <Route path="/" element={<LandingPage />} />
+        
+        {/* App layout for internal terminal routes */}
+        <Route element={<Layout />}>
+          <Route path="overview" element={<Overview />} />
           <Route path="portfolio" element={<Portfolio />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="watchlist" element={<Watchlist />} />
